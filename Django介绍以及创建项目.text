@@ -1,0 +1,64 @@
+在pycharm下创建项目名称：DemoDjango
+1、首先检查linux有没有安装python-pip包，直接执行 yum install python-pip
+2、没有python-pip包就执行命令 yum -y install epel-release
+3、执行成功之后，再次执行yum install python-pip
+4、对安装好的pip进行升级 pip install --upgrade pip
+在pycharm项目目录下安装Django2.2.7：pip install django==2.2.7 (想安装那个版本就写那个版本的版本号)
+
+Django 1.11版本兼容Python 2.7、3.4、3.5、3.6、3.7（added in 1.11.17）
+Django 2.0版本兼容Python 3.4、3.5、3.6、3.7
+Django 2.1、2.2版本兼容Python 3.5、3.6、3.7
+Django 3.0版本兼容Python 3.6、3.7、3.8
+
+查看是否安装成功：pip freeze
+
+创建Django工程：
+django-admin startproject  DemoDjango
+
+manage.py:工程管理文件
+__init__.py:包的标识
+
+settings.py:工程设置文件
+BASE_DIR是项目所在的目录
+SECRET_KEY是必须在线上部署的
+DEBUG是在生产环境中最好不要打开
+ALLOWED_HOSTS是允许哪些主机进行访问（里面直接写IP地址）所有人进行访问写法如下：
+ALLOWED_HOSTS = ["*"]
+INSTALLED_APPS是内置应用
+MIDOLEWARE是中间件
+ROOT_URLCONF是根路由
+TEMPLATES是模板
+WSGI_APPLICATION是WSGI应用
+DATABASES是数据库
+AUTH_PASSWORD_VALIDATORS是认证密码验证器
+LANGUAGE_CODE是字符集
+THOME_ZONE是统一协调至时间
+USE_I18N是开启状态
+STATIC_URL是
+
+
+urls.py:路由文件
+wsgi.py:web网关服务接口文件（部署上线文件）
+
+进入DemoDjango:cd DemoDjango
+为项目创建应用：python manage.py startapp App 或
+django-admin startapp App
+（创建应用的时候查看目录里是否有manage.py文件，原因是因为只有它才能进行创建）
+
+项目里的文件如下：
+在APP工程应用里的文件如下：
+
+admin.py:给Django做后台管理用的
+apps.py:应用配置文件
+__init__.py:包的标识
+migrations:迁移文件
+models.py:封装和数据操作文件
+tests.py:测试文件
+views.py:试图函数文件
+在settings.py文件里改成
+
+LANGUAGE_CODE = ‘zh-hans’
+TIME_ZONE = 'Asiz/Shanghai'
+
+运行命令：python manage.py runserver （产品上线不要用runserver）
+运行命令：python manage.py runserver 0.0.0.0:8000（所有人都可以访问）
