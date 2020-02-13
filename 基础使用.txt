@@ -22,6 +22,52 @@
         (注：在这里url需要导包：django.conf.urls.urls()
              在这里views需要导包：创建的应用名字.views：例：news.views)
              
-7、在views里创建逻辑及功能
+7、创建路由和模板两种方式：
+   创建路由和模板第一种方式：
+      第一种是在App里创建templates文件夹，在文件夹里创建html文件起名为haha.html
+      在settings.py里注册应用两种方式：
+         1、直接在settings.py文件里INSTALLED_APPS里增加“App”目录
+         2、直接在settings.py文件里INSTALLED_APPS里写"App"目录名.apps."App"目录名Config
+         （注：这是一种新的注册方式，1.9版本之后这样写是可以的，1.9之前就必须按照第一种写法来写。）
+         在urls.py文件里输入：
+         path('haha/', views.haha),
+            在views.py里输入：
+               在页面输出写法：
+                  def haha(request):
+                      return HttpResponse("<h1>Print String 'haha'</h1>")
+               跳转页面写法：
+                  def haha(request):
+                      return render(request,'haha.html')
+   创建路由和模板第二种方式：第二种是在App外边创建templates文件夹，在文件夹里创建html文件起名为home.html
+      settimgs.py文件里找到：TEMPLATES里的DIRS写入os.path.join(BASE_DIR,'templates'),
+      在urls.py文件里输入：
+      path('home/', views.home),
+         在views.py里输入：
+            在页面输出写法：
+            def home(request):
+                return HttpResponse("<h1>Print String 'home'</h1>")
+            跳转页面写法：
+            def home(request):
+                return render(request,'home.html')
+
+----------------------------------------------------------------------------------------------------------------------------
+
+   差分views方法：
+      一个项目里要有多个App因为views里的代码不易过多。
+      方法是建立多个App：python manage.py startapp 板块名。
+      建立多个App之后要立即到settings.py里的INSTALLED_APPS里把App的名字写进去。
+      再新建的App里新建urls.py然后在里面写
+         urlpatterns=[
+         url('Index/', views.home_function),
+         ]
+      导入from django.conf.urls import url包和导入本App的views包
+      然后在项目的urls里增加第二个App的路由，写法如下：
+      path('第二个App的名字/',include('第二个App的名字.urls')),
+      例：path('Pim/',include('Pim.urls')),
+
+8、在views里创建逻辑及功能
    在创建的路由urls.py文件里views.news_select用鼠标放到news_select上点击Create function news_select in model views.py
    就可以直接在views.py里创建逻辑及功能了。
+   
+9、运行命令：python manage.py runserver （产品上线不要用runserver）
+   运行命令：python manage.py runserver 0.0.0.0:8000（所有人都可以访问）
