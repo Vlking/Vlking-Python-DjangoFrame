@@ -1,0 +1,27 @@
+1、创建Django工程：django-admin startproject DemoDjango。
+
+2、为项目创建应用：python manage.py startapp App 或 django-admin startapp App
+
+3、使用新创建的应用：在settings.py文件里INSTALLED_APPS增加新创建的名字，比方说'news',或'news.apps.NewsConfig',
+
+4、创建完应用之后必须在里面创建:urls文件夹和templates模板文件夹然后在templates文件夹上右键选择Mark Directory as templates Folder,只
+   有这样才能让templates模板里的html文件有代码补全功能。
+   
+5、在创建的应用文件夹里经常应该用的有urls:路由文件，templates:模板文件，models:创建数据库文件，views:逻辑及功能文件。
+
+6、添加路由方法：
+   在项目里找到urls.py文件，直接在里面写，例：path('china/', views.china),这连个china一定是创建应用的名字。
+   如果是写一个项目就直接用引用的方法写。
+   （1）在项目的urls.py文件里用引用的方法写：
+        path('news/',include('news.urls')),
+        (注：在这里include需要导包：django.urls.include())
+   （2）在新创建的应用里的urls.py里写
+        urlpatterns=[
+            url('selectnews/', views.news_select),
+        ]
+        (注：在这里url需要导包：django.conf.urls.urls()
+             在这里views需要导包：创建的应用名字.views：例：news.views)
+             
+7、在views里创建逻辑及功能
+   在创建的路由urls.py文件里views.news_select用鼠标放到news_select上点击Create function news_select in model views.py
+   就可以直接在views.py里创建逻辑及功能了。
