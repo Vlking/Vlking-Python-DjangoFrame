@@ -1,0 +1,12 @@
+1、在控制台输入：python manage.py shell
+
+2、查表：先导入：from testuser.models import user （注：user这个名字看models里的类的名字是否是大小写）
+users = User.objects.all() 
+#查出所有数据
+#遍历数组
+for i in users:
+print(i.u_name)
+#添加数据
+i = User()
+i.u_name='aa'
+i.save()
