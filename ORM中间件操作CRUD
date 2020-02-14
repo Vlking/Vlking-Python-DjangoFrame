@@ -1,0 +1,87 @@
+#1、创建模型在models里
+
+class User(models.Model):
+    # class User:User是表名（表名一定不要与目录名一致）
+    u_name = models.CharField(max_length=16)
+    # u_name:文章名称CharField==varchar
+    u_age = models.IntegerField(default=1)
+    # u_age:默认为1
+    
+#2、创建CRUD业务逻辑在views里
+
+import random
+
+from django.http import HttpResponse
+from django.shortcuts import render
+
+# Create your views here.
+from news.models import User
+
+
+def user_select(request):
+    # 控制台循环列表
+    alluser = User.objects.all()
+    # User是Models数据模型名字，使用objects.all()进行全部表查询
+    for i in alluser:
+        # 使用for循环进行循环
+        print(i.u_name)
+    # 循环打印
+    return HttpResponse("User List")
+    # 页面提示User List
+
+
+def user_add(request):
+    add = User()
+    # 对象名 = User是Models数据模型名字（），导入models包
+    add.u_name = 'Jerry'
+    # 对象名.字段名插入Jerry字符串
+    add.u_name = 'Jerry%d' % random.randrange(100)
+    # 对象名.字段名插入Jerry字符串，并且产生随机数
+    add.save()
+    # 对象名.保存方法
+    return HttpResponse("添加成功 %s" % add.u_name)
+    # 在页面返回添加成功并且打印添加成功的字符串
+    # （注：为什么u_age为什么没有写，原因是在model里定义的时候n_times是有默认值的！）
+
+
+def user_getpage(request):
+    # 控制台循环列表
+    alluser = User.objects.all()
+    # User是Models数据模型名字，使用objects.all()进行全部表查询
+    context = {
+        # 开启context字典功能
+        # 字典里可以设置多个值
+        "title": "This is User List",
+        # title是单一的值
+        "user": alluser
+        # user是把值传递到html页面的，用于查询列表
+    }
+    return render(request, 'list.html', context=context)
+    # 把表里的数据返回到index.html里，并且开启context字典
+
+
+def user_update(request):
+    getonedate = User.objects.get(pk=1)
+    # getonedate是对象名，User是Models数据模型名字User.objects.get()是单一调取数据，pk=1是指表里的主键值是1的查询出来
+    getonedate.u_name = 'Boss'
+    # 修改主键值是1的数据把字符串改成Boss
+    getonedate.save()
+    # 对象名.保存数据。
+    return HttpResponse("用户修改成功！")
+    # 数据修改成功进行提示
+
+
+def user_delete(request):
+    deleteone = User.objects.get(pk=3)
+    # deleteone是对象名，User是Models数据模型名字User.objects.get()是单一调取数据，pk=1是指表里的主键值是1的查询出来
+    deleteone.delete()
+    # 对象名.删除数据
+    return HttpResponse("用户删除成功！")
+
+
+def user_deleteall(request):
+    alluser = User.objects.all()
+    # User是Models数据模型名字，使用objects.all()进行全部表查询
+    alluser.delete()
+    # 对象名.删除数据
+    return HttpResponse("所有用户删除成功！")
