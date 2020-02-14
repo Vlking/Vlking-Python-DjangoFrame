@@ -18,6 +18,7 @@
     # u_name:文章名称CharField==varchar
     u_age = models.IntegerField(default=1)
     # u_age:默认为1
+    #使用ORM建表的时候主键是自动生成的，外键得我们自己来做
     
 5、在models模型里2.0以上版本在建立一对多关联的时候必须得加上on_delete（2.0以下版本不用加）
   
