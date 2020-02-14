@@ -1,0 +1,41 @@
+1、Django字段类型：
+
+AutoField:主键ID，自动生成，也可以自己创建
+CharField:长字符串(max length=字符长度)
+TextField:大文本字段（超过4000进行使用）
+IntegerField:整数
+DecimalField:(max_digits=None,decimal_places=None):使用场景：金融、股票
+DecimalField.max_digits:位数总数
+DecimalField.decimal_places:小数点后的数字位数
+FloatField:浮点数
+BooleanField:True/False,默认为False,表单场景：单选按钮
+NullBooleanField:null/true/false,表单场景：单选按钮(男，女，保密)
+DateField:([auto_now=False, auto_now_add=False])
+DateField.auto_now:最后一次修改的时候自动设置当前日期，默认值：false
+DateField.auto_now_add:第一次创建的时候自动设置当前日期，默认值：false
+TimeField:使用datetime.time实例表示的时间，参数与DateField相同
+DateTimeField:日期+时间，参数与DateField相同
+FileField:上传文件
+ImageField:继承了FileField的所有方法，但对上传的对象进行晓燕，确保是有效的image
+
+2、字段约束：
+
+null:如果为true，允许字段为空
+blank:如果为true，允许字段为空白
+db_index:创建索引，如果给字段加索引，直接就是db_index=true
+default:默认值，使用场景：p_name = models.IntegerFeil(defalut=18),默认值是18
+primary key:如果为true,就变成了主键
+unique:如果为true,就是唯一值，不能有重复值
+db_column:可以改变字段名字，意思是在models里写的字段名是aa，使用db_column=’bb‘之后在表里字段名就是bb了。
+
+3、关系分类：
+
+ForeignKey:一对多，将字段定义在多的端中
+ManyToManyField:多对多，将字段定义在两端中
+OneToOneField:一对一，将字段定义在任意一段中
+
+4、模型过滤器：
+
+filter：返回符合筛选条件的数据集
+exclude:返回不符合筛选条件的数据集
+多个filter和exclude可以链接在一起查询使用
