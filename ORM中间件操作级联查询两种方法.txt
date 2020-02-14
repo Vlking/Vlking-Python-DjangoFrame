@@ -1,0 +1,44 @@
+Models创建两张表
+
+class Grade(models.Model):
+    g_name = models.CharField(max_length=32)
+
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    # 建立外键，ForeignKey(Grade)外键到Grade上
+    s_grade = models.ForeignKey('Grade',on_delete=models.CASCADE,)
+    #2.0以下版本写成这样：s_grade = models.ForeignKey(Grade)
+    
+    
+Views里写逻辑
+
+def get_grade(request):
+    # 通过学生获取班级名：(级联多个获取1个)
+    student = Student.objects.get(pk=1)
+    # 通过获得学生名字调用s_grade外键
+    grade = student.s_grade
+    # 输出到网页并且打印班级名
+    return HttpResponse("Grade %s" % grade.g_name)
+
+
+def get_class(request):
+    banji = Grade.objects.get(pk=1)
+    # 通过班级查看所有学生:(级联1个获取多个)
+    student = banji.student_set.all()
+    # student_set.all()是学生表的集合
+    context = {
+        "name": "Student List",
+        "stu": student
+    }
+    return render(request, 'student_list.html', context=context)
+    
+html里写输出
+
+{{ name }}
+<hr>
+<ul>
+    {% for i in stu %}
+        <li>{{ i.s_name }}</li>
+    {% endfor %}
+</ul>
