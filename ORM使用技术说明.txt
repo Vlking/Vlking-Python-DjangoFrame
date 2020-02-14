@@ -42,7 +42,15 @@ exclude:返回不符合筛选条件的数据集
 
 5、外键on_delete用法(限制在Django2.0以上版本使用)：
 
-
+例子：
+   class Grade(models.Model):
+    g_name = models.CharField(max_length=32)
+    
+   class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    #建立外键，ForeignKey(Grade)外键到Grade上
+    #2.0以上版本必须得加on_delete=models.CASCADE,2.0以下版本可以直接写成s_grade =models.ForeignKey(Grade)
+    s_grade =models.ForeignKey('Grade',on_delete=models.CASCADE,)
 
 on_delete=None,               # 删除关联表中的数据时,当前表与其关联的field的行为
 on_delete=models.CASCADE,     # 删除关联数据,与之关联也删除
