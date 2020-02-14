@@ -1,0 +1,18 @@
+    在views里写逻辑：
+    
+    # 原生加载模板，原先的return render是简写方法
+    index_news = loader.get_template('indexnews.html')
+    # 创建字典
+    context = {
+        "yourname": "vlking"
+    }
+    # 页面渲染
+    result = index_news.render(context=context)
+    # 控制台打印
+    print(result)
+    # 页面输出
+    return HttpResponse(result)
+    
+    在html里写输出
+    
+    {{ yourname }}
