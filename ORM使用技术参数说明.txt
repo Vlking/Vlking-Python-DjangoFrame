@@ -121,3 +121,8 @@ Max:最大
 Min:最小
 Sum:求和
 Student.objects().aggregate(Max('sage'))
+
+
+13、F()对象:可以获取属性的值
+      可以实现一个模型的不同属性的运算操作
+      可以支持算数运算
