@@ -68,3 +68,23 @@ b. 与之关联的值设置为可执行对象的返回值,设置：models.SET(�
    class Meta:
       #更改表名称为testdate，如果不更改就是，App名_models类名。
       db_table ='testdate'
+      
+7、条件查询：
+
+属性__运算符 = 值
+__gt:大于
+__lt:小于
+__gte:大于等于
+__lte:小于等于
+=:等于
+in在某一集合中
+contains:类似于模糊查询like
+startswith:以xx开始，本质也是like
+endswith:以xx结束，本质也是like
+exact:判断，大小写敏感，filter(isDelete = False)
+contains:是否包含，大小写敏感，filter(sanme_contains='赵')
+startswith,endswith:以value开头或结尾，大小写敏感
+以上4个在运算符前加上i（ignore）就不区分大小写了
+isnull,isnotnull:是否为空，filter(sname_isnull=False)
+in:是否包含在范围内，filter(pk__in=[2,4,6,8])
+gt,gte,lt,lge,:大于，大于等于，小于，小于等于filter(sage__gt=30)
