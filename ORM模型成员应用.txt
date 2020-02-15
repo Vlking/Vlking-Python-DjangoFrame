@@ -1,0 +1,25 @@
+Models.py  数据表
+
+class Animal(models.Model):
+    a_name= models.CharField(max_length=16)
+    #自己创建隐性属性，不直接使用objects
+    a_m = models.Manager()
+
+
+Views.py  业务逻辑
+
+def animal_add(request):
+    for i in range(15):
+        adds = Animal()
+        adds.a_name = "Tom%d" % i
+        adds.save()
+    return HttpResponse("添加成功")
+
+
+def animal_get(request):
+    # a_m:是在Models.py文件里自己创建了a_m = models.Manager()隐性属性，
+    # 所以这里就不是objects,而是a_m
+    all = Animal.a_m.all()
+    for i in all:
+        print(i.a_name)
+    return HttpResponse("动物获取成功")
