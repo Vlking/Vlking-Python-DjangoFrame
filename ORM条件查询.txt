@@ -35,7 +35,7 @@ views.py逻辑：
         return HttpResponse("批量创建成功")
     (注：这里的字段名写的是models里的字段名，不是字段里的字段名)
 
-按条件查询数据：
+1、按条件查询数据：
 #大于小于条件查询
     def testget(request):
         #filter：是满足条件的，exclude：是不满足条件的
@@ -58,7 +58,7 @@ views.py逻辑：
 
 
 
-order_by排序和返回Json格式：
+2、order_by排序和返回Json格式：
 #order_by查询条件
     #order_by排序：正序排列order_by("id"),倒序排列order_by("-id")
     getone = testdate.objects.all().order_by("t_age")
@@ -91,8 +91,8 @@ class Users(models.Model):
     
 Views.py 逻辑
 
-#count()查询条件
-#exists()查询条件
+3、#count()查询条件
+4、#exists()查询条件
     #用户登录判断
     def user_get(request):
         username = "vlkings"
@@ -113,3 +113,29 @@ Views.py 逻辑
         else:
             print("用户不存在")
         return HttpResponse("获取成功")
+        
+        
+     
+5、跨关系查询：
+模型类名_属性名_比较运算符，实际上就是处理数据库中的join
+grade = Grade.objects.filter(student__scontend__contains='楚没人')
+
+Models.py 数据表
+
+class Grade(models.Model):
+    g_name = models.CharField(max_length=16)
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    s_grade = models.ForeignKey("Grade",on_delete=models.CASCADE,)
+    
+    
+Views.py  业务逻辑
+
+def grade_get(request):
+    #查询Jack的班级,可以根据你关联表名__关联表名的字段名=数据
+    grade = Grade.objects.filter(student__s_name='Jack')
+    for i in grade:
+        #打印出Jack的班级
+        print(i.g_name)
+    return HttpResponse("获取成功")
