@@ -63,3 +63,8 @@ on_delete=models.SET_DEFAULT, # 删除关联数据,与之关联的值设置为�
 on_delete=models.SET,         # 删除关联数据,
 a. 与之关联的值设置为指定值,设置：models.SET(值)
 b. 与之关联的值设置为可执行对象的返回值,设置：models.SET(可执行对象) 
+
+6、信息源
+   class Meta:
+      #更改表名称为testdate，如果不更改就是，App名_models类名。
+      db_table ='testdate'
