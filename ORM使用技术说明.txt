@@ -113,3 +113,11 @@ pk:代表主键，filter(pk=1)
 11、切片功能
 #[2:5]:这个是切片功能，查出的数据是从3开始到5
 users = User.objects.all()[2:5]
+
+12、聚合函数
+Avg:平均值
+Count:数据量
+Max:最大
+Min:最小
+Sum:求和
+Student.objects().aggregate(Max('sage'))
