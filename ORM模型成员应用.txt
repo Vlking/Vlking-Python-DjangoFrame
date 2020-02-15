@@ -1,3 +1,4 @@
+第一个例子：
 Models.py  数据表
 
 class Animal(models.Model):
@@ -23,3 +24,41 @@ def animal_get(request):
     for i in all:
         print(i.a_name)
     return HttpResponse("动物获取成功")
+
+
+
+第二个例子：
+Models.py  数据表
+
+class AnimalManager(models.Manager):
+    #AnimalManager不是数据表
+    #get_queryset：获取查询的结果集
+    def get_queryset(self):
+        #super继承父类进行重写
+        return super(AnimalManager,self).get_queryset().filter(is_delete=False)
+
+
+class Animals(models.Model):
+    a_name= models.CharField(max_length=16)
+    is_delete = models.BooleanField(default=False)
+    #objects:变量伪装成objects,也可以不伪装成objects
+    aaa = AnimalManager()
+    a_m = AnimalManager()
+
+
+
+Views.py  业务逻辑
+
+def animals_get(request):
+    #自己创建隐性属性AnimalManager()，继承父类之后重写了query_set
+    #AnimalManager()对象是这里使用了两种写法同时都使用了AnimalManager()对象，
+    # a_m:是在Models.py文件里自己创建了a_m = models.Manager()隐性属性，
+    # aaa:是在Models.py文件里自己创建了aaa = models.Manager()隐性属性，
+    # 查询条件符合is_delete=0的所有信息
+    all = Animals.a_m.filter(is_delete=False)
+    # 查询条件符合is_delete=0的所有信息
+    # all = Animals.aaa.all()
+    for i in all:
+        print(i.a_name)
+    return HttpResponse("动物获取成功")
+    #这两种方法得出的结果是一样的。
