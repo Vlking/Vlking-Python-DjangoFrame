@@ -189,3 +189,31 @@ def company_get(request):
     for i in c:
         print(i.c_name)
     return HttpResponse("获取公司成功")
+
+
+
+8、Q()对象：可以对查询条件进行封装，封装之后可以进行逻辑运算可以执行(与、或 、非)(与 & and     或 | or   非 ~  not)
+
+Models.py 数据表
+
+class Company(models.Model):
+    c_name = models.CharField(max_length=16)
+    c_girl_num = models.IntegerField(default=5)
+    c_boy_num = models.IntegerField(default=3)
+    
+Views.py 业务逻辑
+
+def company_add(request):
+    for i in range(15):
+        adds = Company()
+        adds.c_name = "Tom%d" % i
+        adds.save()
+    return HttpResponse("添加成功")
+    
+ 
+def companys_get(request):
+    # 男生大于1个的与女生大于10个的
+    c = Company.objects.filter(Q(c_boy_num__gt=1) & Q(c_girl_num__gt=10))
+    for i in c:
+        print(i.c_name)
+    return HttpResponse("获取公司成功")
