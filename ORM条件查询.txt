@@ -139,3 +139,21 @@ def grade_get(request):
         #打印出Jack的班级
         print(i.g_name)
     return HttpResponse("获取成功")
+    
+    
+    
+6、聚合函数查询
+
+Models.py  数据表
+
+class Customer(models.Model):
+    c_name = models.CharField(max_length=16)
+    c_cost = models.IntegerField(default=10)
+    
+Views.py   业务逻辑
+
+def customer_get(request):
+    #这里可以使用Avg:平均值，Count:数据量，Max:最大，Min:最小，Sum:求和
+    c = Customer.objects.aggregate(Max("c_cost"))
+    print(c)
+    return HttpResponse("获取成功")
