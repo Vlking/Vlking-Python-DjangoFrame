@@ -1,0 +1,29 @@
+Models.py 数据表
+
+class testdate(models.Model):
+    #姓名：长度16，姓名值是唯一
+    t_name =models.CharField(max_length=16,unique=True)
+    #年龄：默认是18岁,db_column='age'在表里字段名叫age
+    t_age = models.IntegerField(default=18,db_column='age')
+    #性别：False代表男 True代表女,db_column='sex'在表里字段名叫sex
+    t_sex = models.BooleanField(default=False,db_column='sex')
+    #爱好：null=True:可以为空，blank:如果为true，允许字段为空白
+    t_hobby = models.CharField(max_length=32,null=True,blank=True)
+
+
+Views.py 逻辑
+
+def getone_test(request):
+    # MultipleObjectsReturned:如果查询条件对应多个同样信息
+    # DoesNotExist:获取不到信息
+    # 首先是t_age这个字段里没有“7”这个字符串
+    # getone = testdate.objects.get(t_age=7)
+    # 隐藏BUG：有时候first()和last()会出现同样的解决，解决方法手动排序
+    # 获取第一条数据
+    getfirsts = testdate.objects.all().first()
+    print(getfirsts.t_name)
+    # 获取最后一条数据
+    getlasts = testdate.objects.all().last()
+    print(getlasts.t_name)
+
+    return HttpResponse("获取成功")
