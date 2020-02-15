@@ -1,0 +1,35 @@
+Models.py 数据表
+
+class testdate(models.Model):
+    #姓名：长度16，姓名值是唯一
+    t_name =models.CharField(max_length=16,unique=True)
+    #年龄：默认是18岁,db_column='age'在表里字段名叫age
+    t_age = models.IntegerField(default=18,db_column='age')
+    #性别：False代表男 True代表女,db_column='sex'在表里字段名叫sex
+    t_sex = models.BooleanField(default=False,db_column='sex')
+    #爱好：null=True:可以为空，blank:如果为true，允许字段为空白
+    t_hobby = models.CharField(max_length=32,null=True,blank=True)
+
+    # #创建函数，对属性增加新的一种赋值方式,这种赋值方式是给第三种创建对象用的
+    @classmethod
+    def create(cls,t_name,t_age=100, t_sex=True, t_hobby='gaming'):
+        return cls(t_name=t_name,t_age=t_age,t_sex=t_sex,t_hobby=t_hobby)
+
+    #源信息
+    class Meta:
+        #更改表名称为testdate
+        db_table ='testdate'
+        
+        
+        
+Views：业务逻辑
+
+def adds_test(request):
+    # 第二种创建对象方法
+    # add = testdate.objects.create(t_name='Sunck', t_age='15', t_sex=True)
+    # 第三种创建对象方法，第二种和第三种必须把所有字段都写进去！
+    # 这种方法没有完全把字段写进去在添加的时候没写的字段不是null而是“”的空值，
+    # 但是可以通过在models里使用函数的方式自定义赋值
+    add = testdate.create('Jack')
+    add.save()
+    return HttpResponse("创建成功")
