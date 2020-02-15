@@ -36,6 +36,7 @@ views.py逻辑：
     (注：这里的字段名写的是models里的字段名，不是字段里的字段名)
 
 按条件查询数据：
+#大于小于条件查询
     def testget(request):
         #filter：是满足条件的，exclude：是不满足条件的
         #查询满足条件t_age大于40而且小于50，      __gt：大于，  __lt:小于,     __gte:大于等于，   __lte:小于等于
@@ -55,7 +56,10 @@ views.py逻辑：
         <li>姓名：{{ i.t_name }}----年龄：{{ i.t_age }}</li>
     {% endfor %}
 
+
+
 order_by排序和返回Json格式：
+#order_by查询条件
     #order_by排序：正序排列order_by("id"),倒序排列order_by("-id")
     getone = testdate.objects.all().order_by("t_age")
     testdate_values = getone.values()
@@ -76,3 +80,36 @@ order_by排序和返回Json格式：
     {% for i in get %}
            <li>姓名：{{ i.t_name }}  年龄：{{ i.t_age }}</li>
        {% endfor %}
+
+
+
+Models.py 数据表
+
+class Users(models.Model):
+    u_name = models.CharField(max_length=16,unique=True)
+    u_pass = models.CharField(max_length=256)
+    
+Views.py 逻辑
+
+#count()查询条件
+#exists()查询条件
+    #用户登录判断
+    def user_get(request):
+        username = "vlkings"
+        password = "120"
+        # .filter():满足条件的
+        getuser = Users.objects.filter(u_name=username)
+        # count():作用：返回查询集中的对象个数，和做判断
+        # if getuser.count():
+        # exists():是否存在和做判断
+        if getuser.exists():
+            # .first():获取第一条数据
+            user = getuser.first()
+            # 对比密码是否一致
+            if user.u_pass == password:
+                print("获取用户信息成功")
+            else:
+                print("密码错误")
+        else:
+            print("用户不存在")
+        return HttpResponse("获取成功")
