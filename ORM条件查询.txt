@@ -35,7 +35,7 @@ views.py逻辑：
         return HttpResponse("批量创建成功")
     (注：这里的字段名写的是models里的字段名，不是字段里的字段名)
 
-    按条件查询数据：
+按条件查询数据：
     def testget(request):
         #filter：是满足条件的，exclude：是不满足条件的
         #查询满足条件t_age大于40而且小于50，      __gt：大于，  __lt:小于,     __gte:大于等于，   __lte:小于等于
@@ -48,8 +48,14 @@ views.py逻辑：
             "get":getone
         }
         return render(request,'date_list.html',context=context)
+        
+    html文件：
+    
+    {% for i in get %}
+        <li>姓名：{{ i.t_name }}----年龄：{{ i.t_age }}</li>
+    {% endfor %}
 
-    order_by排序和返回Json格式：
+order_by排序和返回Json格式：
     #order_by排序：正序排列order_by("id"),倒序排列order_by("-id")
     getone = testdate.objects.all().order_by("t_age")
     testdate_values = getone.values()
