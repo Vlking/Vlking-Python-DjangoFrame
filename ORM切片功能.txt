@@ -1,0 +1,22 @@
+Models.py 数据表
+
+class Users(models.Model):
+    u_name = models.CharField(max_length=16,unique=True)
+    u_pass = models.CharField(max_length=256)
+    
+    
+Views.py 逻辑
+
+def users_get(request):
+    # [2:5]:这个是切片功能，查出的数据是从3开始到5
+    users = Users.objects.all()[2:5]
+    context = {
+        "users": users
+    }
+    return render(request, "user_list.html", context=context)
+    
+html文件
+
+{% for i in users %}
+        <li>{{ i.u_name }}</li>
+    {% endfor %}
