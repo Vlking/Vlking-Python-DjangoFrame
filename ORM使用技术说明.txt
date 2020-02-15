@@ -88,3 +88,10 @@ startswith,endswith:以value开头或结尾，大小写敏感
 isnull,isnotnull:是否为空，filter(sname_isnull=False)
 in:是否包含在范围内，filter(pk__in=[2,4,6,8])
 gt,gte,lt,lge,:大于，大于等于，小于，小于等于filter(sage__gt=30)
+
+
+8、状态码：
+2xx:请求成功
+3xx:转发重定向
+4xx:客户端错误
+5xx:服务器错了
