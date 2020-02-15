@@ -100,3 +100,13 @@ gt,gte,lt,lge,:大于，大于等于，小于，小于等于filter(sage__gt=30)
 9、查询异常问题
 (1)DoesNotExist:获取不到信息
 (2)MultipleObjectsReturned:如果查询条件对应多个同样信息
+
+
+10、判断查询：
+（1）count():作用：返回查询集中的对象个数，和做判断
+（2）exists():是否存在和做判断
+
+
+11、切片功能
+#[2:5]:这个是切片功能，查出的数据是从3开始到5
+users = User.objects.all()[2:5]
