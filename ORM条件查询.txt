@@ -1,0 +1,72 @@
+models.py数据表：
+
+class testdate(models.Model):
+    #姓名：长度16，姓名值是唯一
+    t_name =models.CharField(max_length=16,unique=True)
+    #年龄：默认是18岁,db_column='age'在表里字段名叫age
+    t_age = models.IntegerField(default=18,db_column='age')
+    #性别：False代表男 True代表女,db_column='sex'在表里字段名叫sex
+    t_sex = models.BooleanField(default=False,db_column='sex')
+    #爱好：null=True:可以为空，blank:如果为true，允许字段为空白
+    t_hobby = models.CharField(max_length=32,null=True,blank=True)
+
+    #源信息
+    class Meta:
+        #更改表名称为testdate
+        db_table ='testdate'
+        
+views.py逻辑：
+  
+    #循环添加数据：
+    def testadd(request):
+        #for循环15条数据
+        for i in range(15):
+        #第一种创建对象方法
+            add = testdate()
+            #生成随机数
+            flag = random.randrange(100)
+            #姓名链接随机数
+            add.t_name = "Tom%d" % i
+            #年龄=随机数
+            add.t_age = flag
+            #性别=取余=0或1
+            add.t_sex = flag % 2
+            add.save()
+        return HttpResponse("批量创建成功")
+    (注：这里的字段名写的是models里的字段名，不是字段里的字段名)
+
+    按条件查询数据：
+    def testget(request):
+        #filter：是满足条件的，exclude：是不满足条件的
+        #查询满足条件t_age大于40而且小于50，      __gt：大于，  __lt:小于,     __gte:大于等于，   __lte:小于等于
+        # get = testdate.objects.filter(t_age__gt=40).filter(t_age__lt=50)
+        #查询不满足条件小于50并且满足于80的
+        get = testdate.objects.exclude(t_age__lt=50).filter(t_age__lt=80)
+        #根据上面的条件查询结果单独查询出74，75，76，相当于：select … where id in (select id from …)
+        getone = get.filter(t_age__in=[74,75,76])
+        context={
+            "get":getone
+        }
+        return render(request,'date_list.html',context=context)
+
+    order_by排序和返回Json格式：
+    #order_by排序：正序排列order_by("id"),倒序排列order_by("-id")
+    getone = testdate.objects.all().order_by("t_age")
+    testdate_values = getone.values()
+    #打印类型
+    print(type(testdate_values))
+    #打印成Json格式
+    print(testdate_values)
+    #for循环打印Json格式
+    for i in testdate_values:
+        print(i)
+
+    context={
+        "get":getone
+    }
+    return render(request,'date_list.html',context=context)
+
+    html：
+    {% for i in get %}
+           <li>姓名：{{ i.t_name }}  年龄：{{ i.t_age }}</li>
+       {% endfor %}
