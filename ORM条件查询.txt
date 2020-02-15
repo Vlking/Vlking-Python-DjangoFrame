@@ -1,3 +1,5 @@
+1、按条件查询数据：
+
 models.py数据表：
 
 class testdate(models.Model):
@@ -35,7 +37,7 @@ views.py逻辑：
         return HttpResponse("批量创建成功")
     (注：这里的字段名写的是models里的字段名，不是字段里的字段名)
 
-1、按条件查询数据：
+
 #大于小于条件查询
     def testget(request):
         #filter：是满足条件的，exclude：是不满足条件的
@@ -157,3 +159,33 @@ def customer_get(request):
     c = Customer.objects.aggregate(Max("c_cost"))
     print(c)
     return HttpResponse("获取成功")
+
+
+7、F()，快速简单获取到字段里的数值
+
+Models.py 数据表
+
+class Company(models.Model):
+    c_name = models.CharField(max_length=16)
+    c_girl_num = models.IntegerField(default=5)
+    c_boy_num = models.IntegerField(default=3)
+    
+    
+Views.py 业务逻辑
+
+def company_add(request):
+    for i in range(15):
+        adds = Company()
+        adds.c_name = "Tom%d" % i
+        adds.save()
+    return HttpResponse("添加成功")
+
+
+def company_get(request):
+    # 计算女生比男生多的公司，F()，快速简单获取到c_girl_num，这样就能获取到女生比男生多的公司
+    # c = Company.objects.filter(c_boy_num__lt=F('c_girl_num'))
+    # 计算女生比男生多15个以上的
+    c = Company.objects.filter(c_boy_num__lt=F('c_girl_num') - 15)
+    for i in c:
+        print(i.c_name)
+    return HttpResponse("获取公司成功")
