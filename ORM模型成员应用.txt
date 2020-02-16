@@ -30,35 +30,33 @@ def animal_get(request):
 第二个例子：
 Models.py  数据表
 
-class AnimalManager(models.Manager):
-    #AnimalManager不是数据表
+#BookManager不是数据表
+#BookManager继承models.Manager
+class BookManager(models.Manager):
     #get_queryset：获取查询的结果集
     def get_queryset(self):
         #super继承父类进行重写
-        return super(AnimalManager,self).get_queryset().filter(is_delete=False)
+        return super(BookManager,self).get_queryset().filter(is_delete=False)
 
 
-class Animals(models.Model):
+class Book(models.Model):
     a_name= models.CharField(max_length=16)
     is_delete = models.BooleanField(default=False)
-    #objects:变量伪装成objects,也可以不伪装成objects
-    aaa = AnimalManager()
-    a_m = AnimalManager()
+    #自己创建隐性属性，不直接使用objects，这样写的意思就是a_m == objects
+    a_m = BookManager()
 
 
 
 Views.py  业务逻辑
 
-def animals_get(request):
-    #自己创建隐性属性AnimalManager()，继承父类之后重写了query_set
-    #AnimalManager()对象是这里使用了两种写法同时都使用了AnimalManager()对象，
+def book_get(request):
     # a_m:是在Models.py文件里自己创建了a_m = models.Manager()隐性属性，
-    # aaa:是在Models.py文件里自己创建了aaa = models.Manager()隐性属性，
-    # 查询条件符合is_delete=0的所有信息
-    all = Animals.a_m.filter(is_delete=False)
-    # 查询条件符合is_delete=0的所有信息
-    # all = Animals.aaa.all()
+    # 所以这里就不是objects,而是a_m,这样写的意思就是a_m == objects
+    # 查询is_delete=0的数据也就是没有被虚拟删除的数据
+    # all = Book.a_m.filter(is_delete=False)这种是普通写法
+    # all = Book.a_m.filter(is_delete=False)
+    # 因为在Models里已经重写了get_queryset查询结果集的方法并且增加了is_delete=False查询条件，所以我们这里直接all()
+    all = Book.a_m.all()
     for i in all:
         print(i.a_name)
     return HttpResponse("动物获取成功")
-    #这两种方法得出的结果是一样的。
