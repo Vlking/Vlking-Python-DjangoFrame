@@ -1,0 +1,85 @@
+路由规则：
+
+
+静态资源尽在debug模式可以使用，正式部署生产环境需要做动静分离。
+Css、js、图片写在static文件夹中，因为是静态资源。
+要想让静态文件执行，需要做以下三点操作：
+1、需要在页面加载静态：{% load static %}
+2、调用css写法：<link rel="stylesheet" href="{% static 'css/aa.css' %}">
+3、settings.py里最下面写静态文件路径：
+STATICFILES_DIRS = [ 
+os.path.join(BASE_DIR,'static'),
+ ]
+
+
+views视图：
+views的响应分为两大类：
+1、以Json数据形式返回
+2、以网页形式返回
+
+
+url传参：
+路由路径中的参数使用    ()     进行获取：
+一个括号（）对应views.py中的一个参数
+urls.py
+# 传参:(\d+)/:正则方法传参
+url('student/(\d+)/', views.student),
+
+views.py 
+#接参数：student(request,s_id):
+def student(request,s_id):
+    return HttpResponse("获取学生成功")
+    
+    
+----------------------------------------------------------------------------------------------------------
+案例：通过班级名字，把每个班级的学生都查出来
+urls.py  路由：
+
+urlpatterns = [
+    url('grades/', views.grades),
+    # 传参:(\d+)/:正则方法传参
+    url('students/(\d+)/', views.students),
+]
+
+
+
+
+models.py 数据表：
+
+class Grade(models.Model):
+    g_name = models.CharField(max_length=16)
+
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    s_grade = models.ForeignKey('Grade',on_delete=models.CASCADE,)
+    
+    
+    
+views.py 业务逻辑：
+
+def students(request, g_id):
+    student_list = Student.objects.filter(s_grade_id=g_id)
+    return render(request, 'grade_student_list.html', context=locals())
+
+
+def grades(request):
+    grade_list = Grade.objects.all()
+    #locals:将局部变量使用字典的方式进行打包
+    return render(request, 'grade_list.html', context=locals())
+    
+ 
+ 
+grade_student_list.html 
+
+{% for i in student_list %}
+    <li>{{ i.s_name }}</li>
+{% endfor %}
+
+
+
+grade_list.html
+
+{% for i in grade_list %}
+    <li><a href="/URLs/students/{{ i.id }}/">{{ i.g_name }}</a></li>
+{% endfor %}
