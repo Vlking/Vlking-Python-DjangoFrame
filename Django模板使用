@@ -1,0 +1,267 @@
+Django模板：
+models.py
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+#创建函数
+def get_name(self):
+    return self.s_name
+
+views.py
+def get_students(request):
+    #Sunck在表里是没有的对应html文件
+    # students = Student.objects.all().filter(s_name="Sunck")
+    students = Student.objects.all()
+
+    code = "<h2>随着了</h2>"
+
+    student_dict = {
+        "hobby": "coding",
+        "times": "one year"
+    }
+
+    context ={
+        "st_name" : students,
+        "student_dict" : student_dict,
+        "count" : 5,
+        "code" : code
+    }
+    return render(request, 'student_list.html',context=context)
+
+
+页面“点”应用：
+第一种:
+{% for i in st_name %}
+    {#  调取字段值  #}
+    <li>{{ forloop.counter }}:{{ i.s_name }}</li>
+    {#    {% empty %}#}
+    {#    <h1>如果查不到信息使用empty进行提示<h1>#}
+{% endfor %}
+第二种：
+{% for i in st_name %}
+    {#  调取models里的函数  #}
+    <li>{{ i.get_name }}</li>
+{% endfor %}
+第三种：
+{# 调取索引 #}
+<li>{{ st_name.1.s_name }}</li>
+第四种：
+{# 调取字典内容 #}
+{{ student_dict.hobby }}
+for循环:
+{% for i in st_name %}
+    {#  调取字段值  #}
+    <li>{{ forloop.counter }}:{{ i.s_name }}</li>
+    {#    {% empty %}#}
+    {#    <h1>如果查不到信息使用empty进行提示<h1>#}
+{% endfor %}
+
+
+
+
+
+if...else...:
+{% for i in st_name %}
+    {#  判断是否是第一个人  #}
+    {% if forloop.first %}
+        <li style="color: cornflowerblue">{{ i.s_name }}</li>
+    {% elif forloop.last %}
+        <li style="color: indianred">{{ i.s_name }}</li>
+    {% else %}
+        <li>{{ i.s_name }}</li>
+    {% endif %}
+{% endfor %}
+
+
+
+
+
+if...elif...else...:
+{% for i in st_name %}
+    {#  判断是否是第一个人  #}
+    {% if forloop.first %}
+        <li style="color: cornflowerblue">{{ i.s_name }}</li>
+    {% elif forloop.last %}
+        <li style="color: indianred">{{ i.s_name }}</li>
+    {% else %}
+        <li>{{ i.s_name }}</li>
+    {% endif %}
+{% endfor %}
+
+
+
+
+
+ifequal....(如果相等)
+{% for i in st_name %}
+{#   计算当前是第5行，背景变颜色， #}
+    {% ifequal forloop.counter 5 %}
+        <li style="background-color: darkgray">{{ i.s_name }}</li>
+    {% else %}
+        <li>{{ i.s_name }}</li>
+        <li>转小写--{{ i.s_name|lower }}</li>
+        <li>转大写=={{ i.s_name|upper }}</li>
+    {% endifequal %}
+{% endfor %}
+
+
+
+
+ifnotequal...(如果不相等)
+{% for i in st_name %}
+{#   计算当前是第5行，背景变颜色， #}
+    {% ifnotequal forloop.counter 5 %}
+        <li style="background-color: darkgray">{{ i.s_name }}</li>
+    {% else %}
+        <li>{{ i.s_name }}</li>
+        <li>转小写--{{ i.s_name|lower }}</li>
+        <li>转大写=={{ i.s_name|upper }}</li>
+    {% endifnotequal %}
+{% endfor %}
+
+
+
+
+
+divisibleby整除：
+{% for i in st_name %}
+{#   计算当前是多少行，“|”这个符号的意思是：前面的输出记录成后面的输入，divisibleby:整除2 #}
+    {% if forloop.counter|divisibleby:2 %}
+        <li style="background-color: darkgray">{{ i.s_name }}</li>
+    {% else %}
+        <li style="background-color: indianred">{{ i.s_name }}</li>
+    {% endif %}
+{% endfor %}
+
+
+
+
+
+过滤器：{{ var | 过滤器}}
+{{ count }}
+{#乘法，乘以5#}
+{% widthratio count 1 5 %}
+{#除法，除以五#}
+{% widthratio count 5 1 %}
+加法{{ count | add:2 }}
+减法{{ count | add:-2 }}
+链接join方法：
+第一种方法：
+str="-"
+seq=('a','b','c')
+print str.join(seq)
+第二种方法：
+list=['1','2','3','4','5']
+>>> print(''.join(list))
+
+
+
+
+html转义
+{#html转义,增加一个过滤器|safe：safe是渲染的方法#}
+{{ code|safe }}
+{% autoescape off %}
+{{ code }}
+{% endautoescape %}
+
+
+
+
+
+empty应用：
+当列表为空或不存在时，执行{% empty %}之后的语句：应用场景：分页查询和搜索查询
+
+{% for i in st_name %}
+    {#  调取字段值  #}
+    <li>{{ forloop.counter }}:{{ i.s_name }}</li>
+    {#    {% empty %}#}
+    {#    <h1>如果查不到信息使用empty进行提示<h1>#}
+{% endfor %}
+
+
+
+
+
+
+forloop应用：
+{{ forloop.counter }} 当前循环是第几次循环，从1开始
+{{ forloop.counter0 }} 当前循环是第几次循环，从0开始
+{{ forloop.revcounter }} 当前循环是第几次循环，倒着数，到1为止
+{{ forloop.revcounter0 }} 当前循环是第几次循环，倒着数，到0为止
+{{ forloop.first }} 是否是第一个，布尔值
+{{ forloop.last }} 是否是最后一个，布尔值
+{% for i in st_name %}
+{#   计算当前是多少行，“|”这个符号的意思是：前面的输出记录成后面的输入，divisibleby:整除2 #}
+    {% if forloop.counter|divisibleby:2 %}
+        <li style="background-color: darkgray">{{ i.s_name }}</li>
+    {% else %}
+        <li style="background-color: indianred">{{ i.s_name }}</li>
+    {% endif %}
+{% endfor %}
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+模板继承：
+views.py
+
+def get_indexs(request):
+#设置页面title名字，用字典的方式处理
+    return render(request, 'home.html',context={"title":"home"})
+<title>{{title}}</title>
+
+block标签：用来规划结构布局
+首次出现，代表规划
+二次出现，代表填充以前的规划
+三次出现，代表填充以前的规划，默认动作是覆盖，如果不想覆盖，可以添加{{ block.super }}，这样就实现了增量式操作。
+a.html
+{% block header %}
+
+{% endblock %}
+
+{% block banner %}
+
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}
+
+b.html
+extends标签：继承已有模板，可以获取父模板的所有结构
+#使用继承方法extends继承于base.html
+{% extends 'base.html' %}
+{% block header %}
+    <div>这是一个调用</div>
+{% endblock %}
+
+
+
+c.html
+include:包含的意思，可以将页面作为一个模块，嵌入到其它页面中
+
+{% extends 'home.html' %}
+
+{% block content %}
+    <h3>呵呵，你的确很强大</h3>
+{% endblock %}
+
+{% block header %}
+    {{ block.super }}
+    <h3>听说你很精神</h3>
+{% endblock %}
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+
+
+
+d.html
+aaaaaaaaaaaaaa
+
+建议用block+extends做，因为include页面时间加载慢。
+如果我们继承自一个父模板，子模板自己直接重写页面结构是不生效的，只能在既有的坑中进行填充。
