@@ -21,16 +21,25 @@ views的响应分为两大类：
 url传参：
 路由路径中的参数使用    ()     进行获取：
 一个括号（）对应views.py中的一个参数
+（）:是叫位置参数
+以下是关键字参数：关键字参数是按照参数名称匹配
+#关键字参数
+    url('timesget/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/', views.get_date),
+
+
 urls.py
 # 传参:(\d+)/:正则方法传参
 url('student/(\d+)/', views.student),
+
+#加3个参数
+    url('timesget/(\d+)/(\d+)/(\d+)/', views.get_time),
 
 views.py 
 #接参数：student(request,s_id):
 def student(request,s_id):
     return HttpResponse("获取学生成功")
     
-    
+
 ----------------------------------------------------------------------------------------------------------
 案例：通过班级名字，把每个班级的学生都查出来
 urls.py  路由：
@@ -39,6 +48,10 @@ urlpatterns = [
     url('grades/', views.grades),
     # 传参:(\d+)/:正则方法传参
     url('students/(\d+)/', views.students),
+    #加3个参数
+    url('timesget/(\d+)/(\d+)/(\d+)/', views.get_time),
+    #关键字参数:按照名称匹配
+    url('dateget/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/', views.get_date),
 ]
 
 
@@ -68,7 +81,15 @@ def grades(request):
     #locals:将局部变量使用字典的方式进行打包
     return render(request, 'grade_list.html', context=locals())
     
- 
+
+def get_time(request, hour, minute, second):
+    return HttpResponse("Time %s: %s %s" %(hour, minute, second))
+
+
+def get_date(request, day, month, year):
+    return HttpResponse("Time %s- %s- %s" %(year, month, day))
+
+
  
 grade_student_list.html 
 
