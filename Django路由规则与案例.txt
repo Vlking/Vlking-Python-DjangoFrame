@@ -22,7 +22,7 @@ url传参：
 路由路径中的参数使用    ()     进行获取：
 一个括号（）对应views.py中的一个参数
 （）:是叫位置参数：位置参数是按照顺序匹配
-以下是关键字参数：关键字参数是按照参数名称匹配
+以下是关键字参数：关键字参数是按照参数名称匹配，关键字参数个数必须和视图函数中参数个数一致
 #关键字参数
     url('timesget/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/', views.get_date),
 
@@ -50,7 +50,7 @@ urlpatterns = [
     url('students/(\d+)/', views.students),
     #加3个参数
     url('timesget/(\d+)/(\d+)/(\d+)/', views.get_time),
-    #关键字参数:按照名称匹配
+    #关键字参数:按照名称匹配，关键字参数个数必须和视图函数中参数个数一致
     url('dateget/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/', views.get_date),
 ]
 
