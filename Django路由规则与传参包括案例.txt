@@ -6,7 +6,7 @@ Css、js、图片写在static文件夹中，因为是静态资源。
 要想让静态文件执行，需要做以下三点操作：
 1、需要在页面加载静态：{% load static %}
 2、调用css写法：<link rel="stylesheet" href="{% static 'css/aa.css' %}">
-3、settings.py里最下面写静态文件路径：
+3、在工程下面创建static文件夹并且在'settings.py里最下面写静态文件路径：
 STATICFILES_DIRS = [ 
 os.path.join(BASE_DIR,'static'),
  ]
