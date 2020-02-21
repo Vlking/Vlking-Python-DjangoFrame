@@ -1,0 +1,25 @@
+JsonResponse()
+JsonResponse()：返回Json数据的请求，通常用在异步请求上
+JsonResponse(dict)也可以使用init(self.data)设置数据
+Content-type是自动设置application/json
+重写了__init__,序列化json数据，指定content_type为application/json。
+Json里包含两种数据源：JsonObject和JsonArray
+JsonObject:{ key-value }
+JsonArray:[ 列表 ]          列表中可以是普通数据类型，也可以是JsonObject
+JsonArray和JsonObject可以嵌套。
+（注：给移动端传数据一般都用JsonResponse()。）
+给Ajax也用于JsonResponse()。Ajax是做前后端分离的。
+
+url('getinfo/', views.get_info, name='get_info'),
+
+def get_info(request):
+    date={
+        "status": 200,
+        "msg":"ok",
+    }
+    return JsonResponse(data=date)
+
+
+（2）错误页面定制：可以重写404、500、501
+如果想修改404页面，就在templates里创建404.html
+   （注：Django2.0以上版本必须在settings.py里设置ALLOWED_HOSTS主机IP地址）
