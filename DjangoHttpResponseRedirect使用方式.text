@@ -1,0 +1,23 @@
+HttpResponseRedirect()
+HttpResponseRedirect()：响应式重定向：可以实现服务器内部跳转
+
+path('Newapp/',include(('Newapp.urls','newapp'),namespace='newapp')),
+
+
+url('hello/', views.hello, name='hello'),
+url('getticket/', views.get_ticket, name='get_ticket'),
+
+
+def hello(request):
+    response = HttpResponse()
+    response.write("您没有成功抢票")
+    response.flush()
+    return response
+
+
+def get_ticket(request):
+    # 这里使用反向解析在视图函数里使用reverse()
+    # 这里是主路由的namespace->newapp:应用里的路由name:hello
+    url = reverse('newapp:hello')
+    print(url)
+    return HttpResponseRedirect(url)
