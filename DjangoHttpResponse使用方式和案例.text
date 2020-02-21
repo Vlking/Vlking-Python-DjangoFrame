@@ -1,0 +1,21 @@
+HttpResponse
+（1）HttpResponse创建方式
+1）不使用模板，直接HttpResponse
+2）调用模板，进行渲染
+先load模板，在渲染
+直接使用render一步到位
+render(request,template_name[,context])
+request                            请求体对象
+template_name               模板路径
+context                            字典参数
+3)HttpResponse属性和方法
+属性：content              返回内容
+    charset              编码格式
+    status_code      响应状态码（200,3xx,404,5xx）
+    content-type      MIME类型
+
+方法：init                      初始化内容
+    write(xxx)           直接写出文本
+    flush()                冲刷缓冲区
+    set cookie(key,value='xxx',max_age=None,exprise=None)            设置cookie
+    delete_cookie()key      
