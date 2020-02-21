@@ -1,0 +1,40 @@
+页面请求：
+
+1、HttpRequest
+      HttpRequest属性：
+
+path:请求的完整路径
+method:请求的方法，常用GET,POST
+encoding:编码方式，常用utf-8
+GET:类似字典的参数，包含了get的所有参数
+POST:类似字典的参数，包含了post的所有参数
+FILES:类似字典的参数，包含了上传的文件
+COOKIES:字典，包含了所有COOKIE
+session:类似字典，表示会话
+
+方法：is_ajax() 含义是：判断是否是ajax(),通常用在移动端和JS中
+
+案例：
+views.py 路由
+url('createstudent/', views.create_student),
+url('haverequest/', views.do_cs, name='do_cs'),
+
+
+views.py 业务逻辑
+def create_student(request):
+    		return render(request,'student.html')
+
+
+def do_cs(request):
+    print(request.method)
+    username = request.POST.get('username')
+    print(username)
+    return HttpResponse(username)
+
+
+
+html页面
+<form action="{% url 'second:do_cs' %}" method="post">
+username:<input type="text" name="username" placeholder="Please input username">
+<button type="submit">Submit</button>
+</form>
