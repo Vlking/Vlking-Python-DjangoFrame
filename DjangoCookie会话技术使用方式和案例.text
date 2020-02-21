@@ -1,0 +1,118 @@
+cookie会话技术
+
+请求生命周期：从Request开始到Response结束
+会话技术种类：
+Cookie:客户端会话技术
+Cookie: 数据存储在客户端
+Cookie:默认不支持中文
+Cookie本身有浏览器生成，通过Response将cookie写到浏览器上，下一次访问，浏览器会根据不同的规则携带cookie过来
+
+response.set_cookie(key,value,max_age=None,exprise=None)
+max_age: 整数，指定cookie过期时间
+exprise: 整数，指定过期时间，还支持是一个datetime或timedelta，可以指定一个具体日期时间
+max_age和expries两个选一个指定
+过期时间的几个关键时间
+max_age：设置为0浏览器关闭失败，设置为None用户过期。
+expires=timedelta(days=10) 10天后过期
+
+request.GET.get(key,defaultvalue)
+Cookie不能跨浏览器
+
+def set_cookie(request):
+    response = HttpResponse("设置Cookie")
+    response.set_cookie('username', 'Rock')
+    return response
+
+def get_cookie(request):
+    username = request.COOKIES.get("username")
+    return HttpResponse(username)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+案例1：实现Cookie存储、Cookie时间设置
+
+url('login/', views.login, name='login'),
+url('loginok/', views.dologin, name='dologin'),
+url('mine/', views.mine, name='mine'),
+
+def login(request):
+    return render(request, 'login.html')
+
+
+def dologin(request):
+    #获取提交表单值
+    uname = request.POST.get('uname')
+    print(uname)
+    #跳转页面重定向到目录
+    r1 = HttpResponseRedirect(reverse('newapp:mine'))
+    #把Cookie保存起来,max_age:过期时间，这里写的是1分钟。				
+    #也可以写成expires=timedelta(days=10) 10天后过期
+    r1.set_cookie('uname', uname,max_age=60)
+    #把提交的字符串进行加密
+    r1.set_signed_cookie('content',uname,"Rock")
+    return r1
+
+def mine(request):
+    uname = request.COOKIES.get('content')
+    # 把提交的字符串进行解密salt="Rock"就是解密
+    uname = request.get_signed_cookie('content',salt="Rock")
+    if uname:
+        return HttpResponse(uname)
+    return redirect(reverse('newapp:login'))
+
+登录html:
+<form method="post" action="{% url 'newapp:dologin' %}">
+    用户名:<input name="uname" type="text" placeholder="请输入用户名">
+    <br>
+    <button>登录</button>
+</form>
+
+案例1：实现Cookie存储、Cookie注销、try.....except Exception as e:..... 、
+
+url('login/', views.login, name='login'),
+url('loginok/', views.dologin, name='dologin'),
+url('mine/', views.mine, name='mine'),
+url('logout/', views.logout, name='logout'),
+
+def login(request):
+    return render(request, 'login.html')
+
+
+def dologin(request):
+    # 获取提交表单值
+    uname = request.POST.get('uname')
+    print(uname)
+    # 跳转页面重定向到目录
+    r1 = HttpResponseRedirect(reverse('newapp:mine'))
+    # 把提交的字符串进行加密
+    r1.set_signed_cookie('content', uname, "Rock")
+    return r1
+
+
+def mine(request):
+    #使用try和except的原因是：
+    #在用户退出后如果直接访问mine会报错，为了程序严禁性所以加上try
+    try:
+        uname = request.get_signed_cookie('content', salt="Rock")
+        if uname:
+            return render(request, 'mine.html', context={"uname": uname})
+    except Exception as e:
+        return redirect(reverse('newapp:login'))
+
+
+def logout(request):
+    response = redirect(reverse("newapp:login"))
+    response.delete_cookie("content")
+    return response
+
+
+登录html:
+<form method="post" action="{% url 'newapp:dologin' %}">
+    用户名:<input name="uname" type="text" placeholder="请输入用户名">
+    <br>
+    <button>登录</button>
+</form>
+
+安全退出html：
+欢迎回来{{ uname }}
+<hr>
+<a href="{% url 'newapp:logout' %}">安全退出</a>
