@@ -1,0 +1,9 @@
+CSRF：防跨站攻击 ，防止恶意注册，确保客户端是我们自己的客户端
+使用了Cookie中csrftoken进行验证，传输
+服务器发送给客户端，客户端将Cookie获取过来，还要进行转码（为了保证数据安全）
+
+如何实现：
+在我们存在csrf_token标签的页面中，相应会自动设置一个Cookie和csrftoken。
+当我们提交的时候会自动验证csrftoken，验证通过后正常执行后续流程，不通过报403页面。
+CSRF使用：
+在html页面增加{% csrf_token %}能让CSRF验证成功。
