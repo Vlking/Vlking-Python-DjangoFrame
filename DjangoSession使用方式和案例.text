@@ -1,0 +1,70 @@
+Session:是服务端会话技术，是把数据存储在服务中，默认Session存储在内存中，Django会把Session持久化在数据库中。并且Session依赖于Cookie。
+Session退出有三种写法：
+1、删除Cookie   2、删除Session   3、同时删除Session和Cookie
+在Django当中，Session的默认过期时间是14天。
+
+如果不用Session就去settings.py文件中找到以下两个信息，然后注释掉。
+INSTALLED_APPS:   'django.contrib.sessions',
+MIDDLEWARE:   'django.contrib.sessions.middleware.SessionMiddleware',
+
+常用操作：
+1、get(key.default=None)根据键获取会话的值
+2、clear()清楚所有会话
+3、flush()删除当前的会话数据并删除会话的Cookie
+4、delete request['session_id']删除会话
+5、session.session_key获取Session的key
+6、设置数据：request.session['user'] = username       
+数据存储到数据库中会进行编码使用的是Base64
+
+Session删除一定要使用request.session.flush()，原因是因为这个是Session和Cookie一起删除的方法，一点痕迹都不留的方法。
+
+案例：
+
+urlpatterns = [
+    url('hello/', views.hello, name='hello'),
+    url('login/', views.login, name='login'),
+    url('mine/', views.mine, name='mine'),
+    url('logout/', views.logout, name='logout'),
+]
+
+def hello(request):
+    return HttpResponse("Hello Two"),
+
+
+def login(request):
+    if request.method == "GET":
+        return render(request, 'two_login.html')
+    elif request.method == "POST":
+        username = request.POST.get("username")
+        #把session存储起来
+        request.session["username"] = username
+    return HttpResponse("登录成功")
+
+
+def mine(request):
+    username = request.session.get("username")
+    return render(request,'mine.html', context=locals())
+
+
+def logout(request):
+    response = redirect(reverse('two.mine'))
+    # 删除cookie方法，不采用因为删除cookie的时候Session还在。
+    # response.delete_cookie('sessionid')
+
+    # 删除Session方法，不采用因为没有把持久化库里的整条数据删除。
+    # del request.session['username']
+
+    #Session和cookie方法一起删除方法
+    request.session.flush()
+    return response
+
+登录：
+<form action="" method="post">
+    用户名：<input type="text" name="username" placeholder="请输入用户名">
+    <button>登录</button>
+</form>
+
+安全退出：
+欢迎登录: {{ username }}
+<hr>
+<a href="{% url 'two.logout' %}">退出</a>
