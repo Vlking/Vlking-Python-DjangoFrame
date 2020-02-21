@@ -1,0 +1,137 @@
+Token:服务端会话技术，可以理解为自定义的Session
+如果Web页面开发中，使用起来和Session基本一致
+如果使用在移动端或客户端开发中，通常以Json形式传输，需要移动端自己存储Token,需要获取Token关键数据的时候，主动传递Token。
+
+优缺点：
+Cookie:使用更简洁，服务器压力更小，数据不是很安全。
+Session:服务器要维护Session,相对安全。
+Token:拥有Session的所有优点，自己维护略微麻烦，支持更多的终端
+
+案例：用户注册入库、登录、登录成功信息 （PC端）
+
+class Students(models.Model):
+    s_name = models.CharField(max_length=16,unique=True)
+    s_password = models.CharField(max_length=128)
+    s_token = models.CharField(max_length=256)
+
+
+url('register/', views.register, name='register'),
+url('studentlogin/', views.student_login, name='student_login'),
+url('studentmine/', views.student_mine, name='student_mine'),
+
+
+def register(request):
+    if request.method == "GET":
+        return render(request, 'student_regist.html')
+    elif request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        # 使用try...except的原因是注册的用户名有可能会一样
+        try:
+            st_save = Students()
+            st_save.s_name = username
+            st_save.s_password = password
+            st_save.save()
+        except Exception as e:
+            return redirect(reverse("two:register"))
+    return HttpResponse("ok")
+
+
+def student_login(request):
+    if request.method == "GET":
+        return render(request, 'student_login.html')
+    elif request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        student = Students.objects.filter(s_name=username).filter(s_password=password)
+        if student.exists():
+            student = student.first()
+            ip = request.META.get("REMOTE_ADDR")
+            token = generate_token(ip, username)
+            student.s_token = token
+            student.save()
+            # 以下是PC端写法
+            response = HttpResponse("用户登录成功")
+            response.set_cookie("token", token)
+            return response
+
+
+def generate_token(ip, username):
+    c_time = time.ctime()
+    r = username
+    return hashlib.new("md5", (ip + c_time + r).encode("utf-8")).hexdigest()
+
+
+def student_mine(request):
+    token = request.COOKIES["token"]
+    try:
+        student = Students.objects.get(s_token=token)
+    except Exception as e:
+        return redirect(reverse("two:student_login"))
+    return HttpResponse(student.s_name)
+
+
+登录html
+
+<form action="{% url 'two:student_login' %}" method="post">
+    账号：<input type="text" name="username" placeholder="请输入用户名">
+    <br>
+    密码：<input type="text" name="password" placeholder="请输入你的银行卡密码">
+    <br>
+    <button>登录</button>
+</form>
+
+注册html
+
+<form action="" method="post">
+    账号：<input type="text" name="username" placeholder="请输入用户名">
+    <br>
+    密码：<input type="text" name="password" placeholder="请输入你的银行卡密码">
+    <br>
+    <button>提交</button>
+</form>
+
+
+
+案例：（移动端，在上面的基础上只更改了student_login和student_mine）
+
+def student_login(request):
+    if request.method == "GET":
+        return render(request, 'student_login.html')
+    elif request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        student = Students.objects.filter(s_name=username).filter(s_password=password)
+        if student.exists():
+            student = student.first()
+            ip = request.META.get("REMOTE_ADDR")
+            token = generate_token(ip, username)
+            student.s_token = token
+            student.save()
+            data = {
+                "status":200,
+                "msg":"login success",
+                "token":token
+            }
+            return JsonResponse(data=data)
+        data = {
+            "status":800,
+            "msg":"verify fail"
+        }
+        return JsonResponse(data=data)
+
+
+def student_mine(request):
+    token = request.GET.get('token')
+    try:
+        student = Students.objects.get(s_token=token)
+    except Exception as e:
+        return redirect(reverse("two:student_login"))
+    data = {
+        "msg": "ok",
+        "status": 200,
+        "data": {
+            "username": student.s_name
+        }
+    }
+    return JsonResponse(data=data)
