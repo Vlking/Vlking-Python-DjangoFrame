@@ -1,0 +1,191 @@
+迁移原理
+
+表里的django_migrations是记录迁移文件的。
+如果删除迁移文件和数据表同时也要删除django_migrations表里的记录，方可再次迁移的时候成功。
+
+模型关系
+1、1对1            2、1对N（一对多）             3、M：N（多对多）
+
+1对1：应用场景：水平拆分、扩展
+使用models.OneToOneField()进行关联
+
+class Card(models.Model):
+person = models.OneToOneField(Person)
+
+绑定卡与人的一对一关系，默认情况下，当人被删除的情况下，与人绑定的卡也跟着删除了，这个可以使用on_delete进行调整
+models.CASCADE    默认值：删除主表数据的时候根据关联的字段，从表也跟着删除
+models.PROTECT    保护模式：主要如果存在级联数据，删除动作受保护，不能成功！主要不存在级联数据，可以删除成功！
+
+models.SET_NULL   置空模式：字段允许为空！主表删除成功之后，从表的级联id被删除！
+models.SET_DEFAULT     默认认值：存在默认值
+models.SET()   指定值：删除的时候重新动态指向一个实体访问对应元素    person.pcard
+
+如果想指定生成迁移文件就在 python manage.py makemigrations  的后面加上 App的名字。
+
+数据删除
+级联表
+主表
+从表
+关系：谁声明关系谁就是从表
+
+级联数据获取
+主获取从： 隐性属性 默认就是级联模型的名字
+从获取主：显性属性，就是属性的名字。
+
+案例：
+
+
+class Person(models.Model):
+    p_name = models.CharField(max_length=16)
+    p_sex = models.BooleanField(default=False)
+
+
+class IDCard(models.Model):
+    id_num = models.CharField(max_length=18,unique=True)
+    id_person = models.OneToOneField('Person', null=True, blank=True, on_delete=models.CASCADE,)
+
+
+#在地址栏输入http://127.0.0.1:8000/Two/addperson/?username=Jack
+url('addperson/', views.add_person, name='add_person'),
+#在地址栏输入http://127.0.0.1:8000/Two/addidcard/?idnum=110
+url('addidcard/', views.add_idcard, name='add_id_card'),
+#在地址栏输入http://127.0.0.1:8000/Two/bindcard/
+url('bindcard/', views.bind_card, name='bind_card'),
+url('removeperson/', views.remove_person, name='remove_person'),
+url('removeidcard/', views.remove_idcard, name='remove_idcard'),
+url('getperson/', views.get_person, name='get_person'),
+url('getidcard/', views.get_card, name='get_card'),
+
+
+# 添加人
+def add_person(request):
+    username = request.GET.get("username")
+    person = Person()
+    person.p_name = username
+    person.save()
+    return HttpResponse("Person创建成功 %d" % person.id)
+
+
+# 添加身份证
+def add_idcard(request):
+    id_num = request.GET.get("idnum")
+    idcard = IDCard()
+    idcard.id_num = id_num
+    idcard.save()
+    return HttpResponse("IDCard %d" % idcard.id)
+
+
+# 进行绑定
+def bind_card(request):
+    person = Person.objects.last()
+    idcard = IDCard.objects.last()
+    idcard.id_person = person
+    idcard.save()
+    return HttpResponse("绑定成功")
+
+
+# 删除人
+def remove_person(request):
+    person = Person.objects.last()
+    person.delete()
+    return HttpResponse("人员移除成功")
+
+
+# 删除身份证
+def remove_idcard(request):
+    idcard = IDCard.objects.last()
+    idcard.delete()
+    return HttpResponse("身份证移除成功")
+
+
+# 通过身份证获得人
+def get_person(request):
+    idcard = IDCard.objects.last()
+    person = idcard.id_person
+    return HttpResponse(person.p_name)
+
+# 通过人获得身份证
+def get_card(request):
+    person = Person.objects.last()
+    idcard = person.idcard
+    return HttpResponse(idcard.id_num)
+
+
+1对N：ForeignKey
+主从获取：隐性属性，级联模型_set
+student_set  Manager的子类，Manager上能使用的幻术都能使用
+从获取主：显性属性
+
+
+
+M对N（多对多）：
+在生成ManyToManyField多对多的时候Models里不用加on_delete，而且在生成表的时候多出来一张表。
+级联数据获取：
+从获取主
+使用属性，属性是一个Manager子类
+主获取从
+隐性属性，也是Manager的子类，操作从或者操作主完全一致。
+
+级联数据方法：add\remove\clear\set
+
+案例：
+
+#消费者
+class Customer(models.Model):
+    c_name = models.CharField(max_length=16)
+
+#商品表
+class Goods(models.Model):
+    g_name = models.CharField(max_length=16)
+    g_customer = models.ManyToManyField(Customer)
+
+
+url('addcustomer/', views.add_customer, name='add_customer'),
+url('addgoods/', views.add_goods, name='add_goods'),
+url('addtocart/', views.add_tocart, name='add_tocart'),
+url('getgoodslist/(?P<customerid>\d+)', views.get_goods_list, name='get_goods_list'),
+
+
+def add_customer(request):
+    c_name = request.GET.get("cname")
+    customer = Customer()
+    customer.c_name = c_name
+    customer.save()
+    return HttpResponse("创建消费者成功%d" % customer.id)
+
+
+def add_goods(request):
+    g_name = request.GET.get("gname")
+    goods = Goods()
+    goods.g_name = g_name
+    goods.save()
+    return HttpResponse("创建商品成功%d" % goods.id)
+
+
+def add_tocart(request):
+    customer = Customer.objects.last()
+    goods = Goods.objects.last()
+    print(type(goods.g_customer))
+    print(goods.g_customer)
+    goods.g_customer.add(customer)
+    # goods.g_customer.remove(customer)
+    customer.goods_set.add(goods)
+    #customer.goods_set.remove(goods)
+    return HttpResponse("添加成功")
+
+
+def get_goods_list(request, customerid):
+    #通过customer_id把所有消费者全都查出来
+    customer = Customer.objects.get(pk=customerid)
+    goods_list = customer.goods_set.all()
+    return render(request, 'goods_list.html', context=locals())
+
+
+{#网页浏览地址：http://127.0.0.1:8000/Two/getgoodslist/5/#}
+{#最后的5是消费者的编号#}
+购买个数：
+<ul>
+    {% for i in goods_list %}
+        <li>商品名称：{{ i.g_name }}-----------商品个数：{{ i.id }}</li>
+    {% endfor %}
+</ul>
