@@ -1,0 +1,25 @@
+模型继承
+Django中模型支持继承，默认继承是会通用字段放到父表中，特定字段放在自己的表中，中间使用外键链接。
+关系型数据库关系越复杂，效率越低，查询越慢，父类表中也会存储过多的数据。
+解决方案：使用元信息来解决这个问题。使模型抽象化。抽象的模型就不会在数据库中产生映射了。
+子模型的表中直接包含父模型的字段。
+
+使用场景：有很多通用的字段可以使用。
+
+支持models的面向对象，可以在models中添加Meta,指定是否抽象，然后进行继承。
+class Animal(models.Model):
+xxx
+classMeta:
+abstract  = True/False
+
+class Dog(Animal):
+xxx
+
+Django是Models to SQL,也可以是SQL to Models:
+想把sql导入到python里步骤如下：
+1、在数据库中创建表
+2、在命令行里输入：python manage.py inspectdb
+（注：如果想直接输出到models.py文件里就把原有的models.py文件先删除掉然后执行如下操作）
+3、直接输出到models.py文件里：python manage.py inspectdb > App的名字/models.py
+(注：直接输出到models.py里的元信息中包含一个属性 manage=False,它的意思是:不是模型生成的。)
+4、如果自己的模型不想被迁移系统管理，也可以使用manage=Flase进行声明。
