@@ -15,6 +15,51 @@ abstract  = True/False
 class Dog(Animal):
 xxx
 
+案例：
+
+# 如果加上“抽象的”abstract = True就不会在数据库中生成映射
+# 也就是在创建表的时候Cat和Dog同时继承了Animal表里的a_name字段，而且Cat和Dog表是单独表不产生关联同时不更改原有表字段，只是在原有的基础上增加了c_name的字段而已。
+class Animal(models.Model):
+    a_name = models.CharField(max_length=16)
+
+    class Meta:
+        abstract = True
+
+class Cat(Animal):
+    c_eat = models.CharField(max_length=32)
+
+
+class Dog(Animal):
+    d_legs = models.IntegerField(default=4)
+    
+    
+    
+url('addcat/', views.add_cat, name='add_cat'),
+url('adddog/', views.add_dog, name='add_dog'),
+    
+
+
+def get_goods_list(request, customerid):
+    #通过customer_id把所有消费者全都查出来
+    customer = Customer.objects.get(pk=customerid)
+    goods_list = customer.goods_set.all()
+    return render(request, 'goods_list.html', context=locals())
+
+
+def add_cat(request):
+    cat = Cat()
+    cat.a_name = "Tom"
+    cat.c_eat = "Fish"
+    cat.save()
+    return HttpResponse("添加成功 %d" % cat.id)
+
+
+def add_dog(request):
+    dog = Dog()
+    dog.a_name = "Tom"
+    dog.save()
+    return HttpResponse("添加成功 %d" % dog.id)
+
 Django是Models to SQL,也可以是SQL to Models:
 想把sql导入到python里步骤如下：
 1、在数据库中创建表
