@@ -1,0 +1,92 @@
+静态资源
+1、静态文件配置：
+STATIC_URL = '/STATIC/'
+STATICFILES_DIRS = [
+os.path.join(BASE_DIR,'static')
+]
+
+2、模板中声明
+{% load static %} 或 {% load staticfiles %}
+{% static 'xxx' %}
+xxx就是相对于staticfiles_dirs的一个位置
+
+3、static 静态文件里的html不支持动态语法
+
+4、图片上传：
+1)需要安装：pip install pillow
+2)需要在创建ststic文件夹然后在里面继续创建upload文件夹
+3)需要指定目录在settings.py的最下面：MEDIA_ROOT = os.path.join(BASE_DIR, 'static/upload')
+
+url('upload/', views.upload_file, name='upload_file'),
+
+def upload_file(request):
+    if request.method == "GET":
+        return render(request, 'upload.html')
+    elif request.method == "POST":
+        icon = request.FILES.get("icon")
+        print(type(icon))
+        print(icon)
+        #保存
+        with open("static/img/icon.jpg",'wb') as save_file:
+            #把上传的文件进行循环分块上传
+            for part in icon.chunks():
+                save_file.write(part)
+                save_file.flush()
+        return HttpResponse("文件上传成功")
+
+
+<form action="{% url 'H5:upload_file' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <span>文件：</span>
+    <input type="file" name="icon">
+    <br>
+    <input type="submit" value="上传">
+</form>
+
+(注：文件目录地址在static/img)
+
+----------------------------------------------------------------------------------------------------
+
+带数据表的上传：
+
+class UserModel(models.Model):
+    u_name = models.CharField(max_length=16)
+    # upload_to 是相对路径，相对于是MEDIA_ROOT 多媒体目录
+    # 需要指定目录在settings.py的最下面：MEDIA_ROOT = os.path.join(BASE_DIR, 'static/upload')
+    # 下面这种写法是把年月日分开
+    u_icon = models.ImageField(upload_to='%Y/%m/%d/icons')
+    
+    
+url('imagefield/', views.image_field, name='image_field'),
+url('mine/', views.mine, name='mine'),
+
+
+#添加上传
+def image_field(request):
+    if request.method == "GET":
+        return render(request, 'image_field.html')
+    elif request.method == "POST":
+        username = request.POST.get("username")
+        icon = request.FILES.get("icon")
+        user = UserModel()
+        user.u_name = username
+        user.u_icon = icon
+        user.save()
+    return HttpResponse("上传成功%d" % user.id)
+    
+    
+#通过username获得头像
+def mine(request):
+    username = request.GET.get("username")
+    user = UserModel.objects.get(u_name=username)
+    print("/static/upload/"+user.u_icon.url)
+    data = {
+        "username":username,
+        "icon_url":"/static/upload/"+user.u_icon.url
+    }
+    return render(request, 'mine.html',context=data)
+    
+    
+<h3>{{ username }}</h3>
+<img src="{{ icon_url }}" alt="{{ username }}">
+{#访问路径地址：http://127.0.0.1:8000/H5/mine/?username=Tom#}
