@@ -1,0 +1,159 @@
+缓存：提升服务器响应速度
+Django内置缓存框架
+使用数据库进行缓存：命令行输入
+【缓存里如果信息存在将返回给客户端，如果没有将去Models查询，然后Models要和数据库对接，然后返回models 然后再返给views,views要进行存储然后再一次返回给客户端】
+【使用数据库做缓存会自动生成my_cache_table表】
+@cache_page：是装饰器的意思
+1、创建缓存表名字：python manage.py createcachetable my_cache_table
+2、注册缓存：注册缓存表需要在settings.py里的数据库链接的下面接着写：
+      CACHES = {
+    'default':{
+        # 后端实现
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        # 缓存表名称
+        'LOCATION': 'my_cache_table',
+        # 默认缓存时间5分钟
+        'TIMEOUT': 60 * 5,
+    }
+}
+
+
+ 3、使用数据库和装饰器案例：（不建议方法）
+如果想通过缓存提高查询速度就在，views.py里的类上面写@cache_page(30)【这里是指缓存30秒】，然后导包。
+
+url('news/', views.news, name='news'),
+
+
+@cache_page(30)
+def news(request):
+    new_list = []
+    for i in range(10):
+        new_list.append("老师火了%d" % i)
+    sleep(5)
+    data = {
+        'news_list': new_list
+    }
+    return render(request, 'news.html', context=data)
+
+
+{% for i in news_list %}
+    <li>{{ i }}</li>
+{% endfor %}
+
+
+4、使用数据库和不用装饰器来自己创建缓存案例：（不建议方法）
+
+def news(request):
+    # 去缓存查找数据【如果想让所有人用统一数据直接使用函数名，如果不想用统一标识可以用ip、MAC地址、Cookie等等】
+#  导包：from django.core.cache import cache
+    result = cache.get("news")
+    # 如果放入的是字符串可以直接result
+    if result:
+        return HttpResponse(result)
+    new_list = []
+    for i in range(10):
+        new_list.append("老师火了%d" % i)
+    sleep(5)
+    data = {
+        'news_list': new_list
+    }
+    response = render(request, 'news.html', context=data)
+    # 把response里的内容拿出来，设置超时时间1分钟
+    cache.set("news", response.content, timeout = 60)
+    return response
+
+导入Cache缓存包：from django.core.cache import cache
+
+
+5、使用Redis数据库做缓存：（推荐使用）
+【windows下不需要安装下面1和2项，需要独立安装Redis3.0然后进行配置】
+1）安装django-redis:pip install django-redis
+2）安装django-redis-cache:pip install django-redis-cache
+3）配置settings.py文件：
+CACHES = {
+    'default':{
+        #后端实现
+        'BACKEND': 'django_redis.cache.RedisCache',
+        #缓存位置
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        #指定客户端
+        'OPTIONS':{
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+4）把redis开启：
+linux下：在python里命令行单独打开一个命令行进行开启：redis-server然后输入redis-cli
+windows下：在python里命令行单独打开一个命令行进行开启：redis-cli
+windows下安装：要把path项勾选，安装完之后远端链接要去安装目录设置：
+找到：redis.windows-service.conf文件，查找requirepass在下面一行输入requirepass 12345来设置密码。
+
+同样执行以下命令：
+#查看1号库
+select 1
+keys *
+#获取1库当中的news
+get :1:news
+能看到的结果就是缓存。
+#查看过期时间
+ttl :1:new
+得出的结果是-2就是过期了
+【执行程序是4里的代码可以进行刷新】
+
+CACHES = {
+    'default': {
+        # 后端实现
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        # 缓存表名称
+        'LOCATION': 'my_cache_table',
+        # 默认缓存时间5分钟
+        'TIMEOUT': 60 * 5,
+    },
+    
+    'redis_backend': {
+        # 后端实现
+        'BACKEND': 'django_redis.cache.RedisCache',
+        # 缓存位置
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        # 指定客户端
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+
+url('news/', views.news, name='news'),
+url('jokes/', views.jokes, name='jokes'),
+
+
+
+
+def news(request):
+    # 导包：django.core.cache.caches        redis_backend必须是settings.py里的缓存名
+    cache = caches['redis_backend']
+
+    # 去缓存查找数据【如果想让所有人用统一数据直接使用函数名，如果不想用统一标识可以用ip、MAC地址、Cookie等等】
+    result = cache.get("news")
+    # 如果放入的是字符串可以直接result
+    if result:
+        return HttpResponse(result)
+    new_list = []
+    for i in range(10):
+        new_list.append("老师火了%d" % i)
+    #假设睡5秒
+    sleep(5)
+    data = {
+        'news_list': new_list
+    }
+    response = render(request, 'news.html', context=data)
+    # 把response里的内容拿出来，设置超时时间1分钟
+    cache.set("news", response.content, timeout = 60)
+    return response
+
+# 缓存60秒，cache='default'是指定settings.py缓存的那个库
+@cache_page(60, cache='redis_backend')
+def jokes(request):
+    #假设睡5秒
+    sleep(5)
+    return HttpResponse('JokeList')
