@@ -1,0 +1,99 @@
+AOP中间件：轻量级底层插件，本质是python类装饰器，针对于业务处理过程中的切面进行提取。
+实现统计功能。
+
+
+1、自定义中间件流程：
+1）在工程目录下创建middleware目录
+2）目录中创建一个python文件
+3）在python文件中导入中间件的基类：
+      from django.utils.deprecation import MiddlewareMixin
+4）在类中根据功能需求，创建切入需求类，重写切入点方法
+      class LearnAOP(MiddlewareMixin):
+def process_request(self,request):
+print('request的路径', request.GET.path)
+5）启用中间件，在settings.py中进行陪着，MIDDLEWARE中添加MIDDLEWARE.文件名.类名
+
+
+
+2、切入函数：
+init:没有参数，服务器响应第一个请求的时候自动调用，用户确定是否启用该中间件。
+
+process_request(self,request):在执行视图前调用，每个请求上都会调用，不中主动进行返回或返回HttpResponse对象
+
+process_view(self,request,view_func,view_args,view_kwargs):调用视图前执行，每个请求都会调用，不主动进行返回或返回HttpResponse对象
+
+process_template_response(self,request,response):在视图刚好执行完后进行调用，每个请求都会调用，不主动进行返回或返回HttpResponse对象
+
+process_response(self,request,response):所有响应返回浏览器之前调用，每个请求都会调用，不主动进行返回或返回HttpResponse对象
+
+process_exception(self,request,exception):当视图抛出异常时调用，不主动进行返回或返回HttpResponse对象
+
+案例：权重优先级：抽奖功能，白名单
+
+url('getphone/', views.get_phone, name='get_phone'),
+
+
+def get_phone(request):
+    if random.randrange(100) > 95:
+        return HttpResponse("恭喜你抢到了小米8")
+    return HttpResponse("正在排队")
+
+
+在middlewear文件夹里的类：
+class HelloMiddle(MiddlewareMixin):
+    # 利用函数切点取得切面
+    def process_request(self, request):
+        print(request.META.get("REMOTE_ADDR"))
+        # 通过IP进行获取
+        ip = request.META.get("REMOTE_ADDR")
+        # 如果ip是127.0.0.1
+        if ip == "127.0.0.1":
+            # 中将几率大于20%
+            if random.randrange(100) > 20:
+                return HttpResponse("恭喜您免费获得小米8")
+
+
+案例：权重控制：黑名单，白名单
+
+url('getticket/', views.get_ticket, name='get_ticket'),
+
+def get_ticket(request):
+    return HttpResponse("还剩余99张")
+
+在middlewear文件夹里的类
+
+# 已IP开始为1开头的不让中奖
+if ip.startswith("127.0.0.1"):
+    return HttpResponse("已抢光")
+
+
+案例：如果出现服务器500错误可以直接在中间件里进行跳转：
+
+path('newcache/',include(('NewCache.urls','newcache'),namespace='newcache')),
+
+url('index/', views.index, name='index'),
+
+class HelloMiddle(MiddlewareMixin):
+    def process_exception(self, request, exception):
+        print(request, exception)
+        return redirect(reverse('newcache:index'))
+
+3、CSRF实现机制
+      CSRF豁免第二种方式：
+      在视图views.py文件函数上面输入@csrf exempt 就可以了，这个是添加一个豁免权。
+
+      案例：
+url('login/', views.login, name='login'),
+
+@csrf_exempt
+def login(request):
+    if request.method == "GET":
+        return render(request, 'login.html')
+    elif request.method == "POST":
+        return HttpResponse("POST请求成功")
+
+<form action="{% url 'newcache:login' %}" method="post">
+    用户名:<input type="text" name="username" placeholder="请输入用户名">
+    <br>
+    <button>登录</button>
+</form>
