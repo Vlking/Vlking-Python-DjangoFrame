@@ -1,0 +1,115 @@
+分页
+django自有分页工具存在django.core中
+Paginator：数据分页工具
+page：具体的某一页面
+
+Paginator:
+对象创建：Paginator(数据集，每一页数据数)
+
+属性：
+count:对象总数
+num_pages:页面总数
+page_range:页码列表，从1开始
+
+方法：
+page(整数)：获得一个page对象
+
+常见错误：
+InvalidPage:page()传递无效页面
+PageNotAnlnteger:page()传递的不是整数
+Empty:page()传递的值有效，但是没有数据
+
+Page:对象获得，通过Paginator的page()方法获得
+
+属性：
+object_list:当前页面上所有的数据对象
+number:当前页的页码值
+paginator:当前page关联的Paginator对象
+
+方法：
+has_next():判断是否有下一页
+has_previous():判断是否有上一页
+has_other_pages():判断是否有上一页或下一页
+next_page_number():返回下一页的页码
+previous_page_number():返回上一页的页面
+len():返回当前页的数据的个数
+
+案例：使用分页器
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    s_age = models.IntegerField(default=15)
+
+
+url('addstudents/', views.add_students, name='add_students'),
+url('getstudentswithpage/', views.get_students_with_page, name='get_students_with_page'),
+
+
+def add_students(request):
+    for i in range(100):
+        student = Student()
+        student.s_name = "小明%d" % i
+        student.s_age = i
+        student.save()
+    return HttpResponse("学生添加成功")
+
+
+def get_students_with_page(request):
+    # 用get方式获取，如没有获取到给页面一个默认值第1页
+    page = int(request.GET.get("page", 1))
+    # 获取每页显示10条数据
+    per_page = int(request.GET.get("per_page", 10))
+    students = Student.objects.all()
+    # 直接把对象列表放入Paginator构造对象然后把每页多少条数据也放进去
+    paginator = Paginator(students, per_page)
+    # 获取到某一页
+    page_object = paginator.page(page)
+    data = {
+        "page_object": page_object,
+        "page_range": paginator.page_range,
+    }
+    return render(request, 'students_with_page.html', context=data)
+
+
+<body>
+<ul>
+    {% for i in page_object.object_list %}
+        <li>{{ i.s_name }}</li>
+    {% endfor %}
+</ul>
+
+<ul>
+    {% if page_object.has_previous %}
+        <li>
+            <a href="{% url 'newpage:get_students_with_page' %}?page={{ page_object.previous_page_number }}">上一页</a>
+        </li>
+    {% else %}
+        <li>
+            <a href="#">上一页</a>
+        </li>
+    {% endif %}
+
+    {% for i in page_range %}
+        {% ifequal i page_object.number %}
+            <li>
+                <a href="{% url 'newpage:get_students_with_page' %}?page={{ i }}"
+                   style="background-color: indianred;">{{ i }}</a>
+            </li>
+        {% else %}
+            <li>
+                <a href="{% url 'newpage:get_students_with_page' %}?page={{ i }}">{{ i }}</a>
+            </li>
+        {% endifequal %}
+    {% endfor %}
+
+    {% if page_object.has_next %}
+        <li>
+            <a href="{% url 'newpage:get_students_with_page' %}?page={{ page_object.next_page_number }}">下一页</a>
+        </li>
+    {% else %}
+        <li>
+            <a href="#">下一页</a>
+        </li>
+    {% endif %}
+</ul>
+</body>
