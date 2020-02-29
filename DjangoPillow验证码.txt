@@ -1,0 +1,135 @@
+Pillow验证码：
+pip install Pillow
+
+案例验证码：
+把文字复制粘贴到static静态文件夹里，然后再创建fonts文件夹，然后在settings.py文件里设置static目录和FONT_PATH目录：
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+FONT_PATH = os.path.join(BASE_DIR, 'static/fonts/framd.ttf')
+
+
+url('getcode/', views.get_code, name='get_code'),
+url('login/', views.login, name='login'),
+
+
+在static静态文件夹里创建js文件夹然后创建login.js
+
+$(function () {
+    $("img").click(function () {
+        console.log("点到我了");
+        $(this).attr("src","/newpage/getcode/?t=" + Math.random());
+    })
+})
+
+
+创建utils.py工具类
+
+import random
+
+def get_color():
+    # 设置所有调取的随机颜色
+    return random.randrange(256)
+
+# 生成随机字符串
+def generate_code():
+    # 原始字符串
+    source = "0123456789qwertyuioplkjhgfdsazxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ"
+    code = ""
+    for i in range(4):
+        # 循环取出source里的字符串进行拼接
+        code += random.choice(source)
+    return code
+
+
+views.py
+
+@csrf_exempt
+def login(request):
+    if request.method == "GET":
+        return render(request, 'login.html')
+    elif request.method == "POST":
+        # 通过POST请求获取验证码
+        receive_code = request.POST.get("verify_code")
+        print(receive_code)
+        # 存储码
+        store_code = request.session.get("verify_code")
+        print(store_code)
+        # 对比两个码是否一致,.lower()是不区分大小写如果不加就是区分大小写
+        if receive_code.lower() != store_code.lower():
+            return redirect(reverse('newpage:login'))
+        return HttpResponse("登录成功")
+
+
+def get_code(request):
+    mode = "RGB"
+    # 设置面积长和宽
+    size = (200, 100)
+
+    # 背景颜色随机,调用下面的get_color()函数
+    red = get_color()
+    green = get_color()
+    blue = get_color()
+    color_bg = (red, green, blue)
+
+    # 初始化画布mode:图像模式，
+    image = Image.new(mode=mode, size=size, color=color_bg)
+    # 初始化画笔
+    imagedraw = ImageDraw(image, mode=mode)
+    # 构建ImageFont,指定字体路径，指定文字大小，默认是10
+    imagefont = ImageFont.truetype(settings.FONT_PATH, 100)
+
+    # 调用utils.py工具类里的generate_code()函数
+    verify_code = generate_code()
+
+    # 通过验证码绑定session
+    request.session['verify_code'] = verify_code
+
+    # 调取verify_code[i]字符串并且把字符串循环间距
+    for i in range(4):
+        # 设置文字随机颜色
+        fill = (get_color(), get_color(), get_color())
+        # 创建坐标和文字
+        imagedraw.text(xy=(50 * i, 0), text=verify_code[i], font=imagefont, fill=fill)
+
+    # 循环增加1000个干扰点
+    for i in range(10000):
+        # 设置随机颜色
+        fill = (get_color(), get_color(), get_color())
+        # 这里的xy要和画布大小一样
+        xy = (random.randrange(201), random.randrange(100))
+        # point点，arc弧，
+        imagedraw.point(xy=xy, fill=fill)
+        
+    # 创建内存IO流转成二进制解码
+    fp = BytesIO()
+    # fp是文件输出流的位置和format格式
+    image.save(fp, "png")
+    #
+    return HttpResponse(fp.getvalue(), content_type="image/png")
+
+
+
+login.html
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
+</head>
+<body>
+<form action="{% url 'newpage:login' %}" method="post">
+    用户名：<input type="text" name="username" placeholder="请输入用户名">
+    <br>
+    验证码：<input type="text" name="verify_code" placeholder="请输入下图中的验证码">
+    <br>
+    <img src="{% url 'newpage:get_code' %}">
+    <br>
+    <button>登录</button>
+</form>
+</body>
+</html>
