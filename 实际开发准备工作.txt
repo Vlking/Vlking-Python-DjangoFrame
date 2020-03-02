@@ -2,6 +2,7 @@ settings.py文件设置：
 1、ALLOWED_HOSTS = ["*"]
 
 2、INSTALLED_APPS = [ ]    注册APPS
+需要注册'debug_toolbar',
 
 3、数据库配置
 DATABASES = {
