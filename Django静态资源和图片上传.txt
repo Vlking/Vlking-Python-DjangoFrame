@@ -4,6 +4,8 @@ STATIC_URL = '/STATIC/'
 STATICFILES_DIRS = [
 os.path.join(BASE_DIR,'static')
 ]
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 2、模板中声明
 {% load static %} 或 {% load staticfiles %}
