@@ -113,6 +113,22 @@ FONT_PATH = os.path.join(BASE_DIR, 'static/fonts/framd.ttf')
 10、配置urls.py
 path('newcache/', include(('NewCache.urls', 'newcache'), namespace='newcache')),
 
+Debug-Toolbar配置：
+需要在
+urlpatterns = [ ] 的下面把下面的代码复制粘贴
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        #2.0以前的使用这个
+        #path('__debug__/', include(debug_toolbar.urls)),
+        #2.0以后的使用下面的
+        For django versions before 2.0:
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
+    
+（注：settings导包导入项目名称包）
+
 11、设置base.html类：
 <head>
 调用的css写到这里
