@@ -62,6 +62,9 @@ pymysql.install_as_MySQLdb()
    
 4、配置MIDDLEWARE:
 创建middleware文件夹，创建python文件......Middle.py，然后注册在settings.py文件的MIDDLEWARE里面。
+Debug-Toolbar配置：在setting.py文件里增加下面的middleware
+MIDDLEWARE = [ 'debug_toolbar.middleware.DebugToolbarMiddleware', ]
+
 
 5、缓存配置
 CACHES = {      
@@ -127,6 +130,11 @@ if settings.DEBUG:
     ] + urlpatterns
     
 （注：settings导包导入项目名称包）
+
+需要在最下面加上：
+INTERNAL_IPS = [
+    '127.0.0.1','localhost'
+]
 
 11、设置base.html类：
 <head>
