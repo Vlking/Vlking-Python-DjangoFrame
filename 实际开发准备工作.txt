@@ -123,7 +123,6 @@ if settings.DEBUG:
         #2.0以前的使用这个
         #path('__debug__/', include(debug_toolbar.urls)),
         #2.0以后的使用下面的
-        For django versions before 2.0:
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
     
