@@ -103,6 +103,7 @@ FONT_PATH = os.path.join(BASE_DIR, 'static/fonts/framd.ttf')
 
 9、命令
 安装Django2.2.7：pip install django==2.2.7 
+安装Django-debug-toolbar:pip install django-debug-toolbar
 为项目创建应用：python manage.py startapp App
 运行命令：python manage.py runserver （产品上线不要用runserver）
 生成迁移文件：python manage.py makemigrations
