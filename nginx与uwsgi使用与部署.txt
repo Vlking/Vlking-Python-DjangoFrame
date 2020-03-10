@@ -1,0 +1,131 @@
+安装nginx
+wget http://nginx.org/download/nginx-1.16.1.tar.gz
+tar -zxvf nginx-1.16.1.tar.gz
+cd nginx-1.16.1/
+./configure --user=nobody --group=nobody --prefix=/usr/local/nginx --with-pcre=/root/softwear/pcre-8.33 --with-zlib=/root/softwear/zlib-1.2.11 --with-http_stub_status_module --with-http_gzip_static_module --with-http_realip_module --with-http_sub_module --with-http_ssl_module
+make && make install
+cd /usr/local/nginx/sbin/
+./nginx
+
+
+
+查找安装后的文件夹
+whereis nginx
+进入usr/local/nginx/sbin
+./nginx
+执行127.0.0.1
+
+把nginx增加到环境变量里
+vim /etc/profile
+在最下面增加，也是安装的目录
+PATH=$PATH:/usr/local/nginx/sbin
+export PATH
+
+找到/usr/local/nginx/sbin目录
+强制关闭：pkill nginx
+查看nginx进程数：ps -ef | grep nginx
+./nginx                     启动nginx
+./nginx -s stop         强制杀掉进程
+./nginx -s quit          此方式停止步骤是待nginx进程处理任务完毕进行停止
+./nginx -s reload      重启
+
+杀掉nginx进程：kill -9
+
+配置nginx配置文件：
+进入usr/local/nginx/conf文件夹
+vim nginx.conf
+
+删除掉查询出来的所有nginx的文件
+sudo rm -rf file /usr/local/nginx*
+
+cpu使用1核
+worker_processes  1;
+最大连接数是1024个nginx最大支持数是5万，如果想增加链接数就去更改CPU使用数，超过5万加机器
+events {
+    worker_connections  1024;
+}
+连接超时65秒
+keepalive_timeout  65;
+可以更改ip
+server_name localhost;
+
+location：核心中的核心，用来解析url，实现动静分离
+
+配置文件案例
+1、复制原有配置文件复制到项目的根目录里，名字可以自己起.conf的文件然后改里面的代码
+linux版 nginx1.16.1
+#user  nobody;
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server {
+        listen       80;
+        server_name  localhost;
+ #root的地址直接写项目的地址
+ 	root   html;
+ #location直接匹配static目录，这是里访问静态资源
+        location / static{
+            #这里要匹配各种资源所以使用alias别名功能，直接写alias / 后面是static绝对地址路径
+            alias / G:\PycharmProjects\HelloProject\static;
+        }
+location / {
+#把uwsgi模块导入进来
+include /etc/nginx/uwsgi_params;
+#将请求交给uwsgi处理
+uwsgi_pass 127.0.0.1:8888;
+}
+    }
+}
+
+
+2、./nginx -t -c 绝对路径                           检查配置文件是否可用
+3、./nginx -s quit                                       把现有nginx关闭
+4、./nginx -c 绝对路径                              启用刚才编写的配置文件  
+5、ps -ef | grep nginx                           查看nginx进程数
+6、访问的时候默认是nginx403页面，访问地址直接是127.0.0.1/static/后面是静态文件。
+
+7、解决动态资源，到Settings.py 里关闭DEBUG = False
+8、安装uwsgi:pip install uwsgi
+9、uwsgi配置文件：uwsgi.ini        放到项目根目录里
+[uwsgi]
+#使用nginx链接使使用,如果想让所有人访问就是0.0.0.0：8010
+socket = 127.0.0.1:8010
+#直接作为web服务器使用,如果想让所有人访问就是0.0.0.0：8010
+http = 127.0.0.1:8010
+#这里是项目主目录
+chdir=/var/www/DjangoAXF/AXF
+#这里是相对路径，主目录/wsg.py
+wsig-file=AXF/wsgi.py
+#进程数
+processes=4
+#线程数
+threads=2
+#是否开启多线程模式
+enable-threads=True 
+#是否开启主从结构（数据库）
+master=True
+#进程ID存储文件
+pidfile=uwsgi.pid
+#uwsgi日志
+daemoize=uwsgi.log
+10、启动uwsgi:uwsgi --ini /uwsgi.ini的绝对路径
+11、uwsgi --stop uwsgi.pid 关闭uwsig
