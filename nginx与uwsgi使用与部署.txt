@@ -129,3 +129,20 @@ pidfile=uwsgi.pid
 daemoize=uwsgi.log
 10、启动uwsgi:uwsgi --ini /uwsgi.ini的绝对路径
 11、uwsgi --stop uwsgi.pid 关闭uwsig
+
+
+upstream负载均衡：
+
+在Nginx配置文件里的server{   }上写入：
+upstream my_server{
+# 这里可以写多个服务器
+server 127.0.0.1:8000 weight=1;
+server 127.0.0.2:8000 weight=1;
+server 127.0.0.3:8000 weight=1;
+}
+(如果采用多台服务器，在配置文件里的location里就不用写具体的服务器了，
+可以直接写：proxy_pass http://my_server;)
+weight:负载权重（权重数可以是不同的）
+down：当前server不参与负载均衡
+backup:其它机器全down掉，或满载使用此服务
+ip_hash:按每个请求的hash结果分配
