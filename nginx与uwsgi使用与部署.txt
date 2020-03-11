@@ -1,4 +1,4 @@
-安装nginx
+八、安装nginx
 wget http://nginx.org/download/nginx-1.16.1.tar.gz
 tar -zxvf nginx-1.16.1.tar.gz
 cd nginx-1.16.1/
@@ -24,6 +24,7 @@ export PATH
 找到/usr/local/nginx/sbin目录
 强制关闭：pkill nginx
 查看nginx进程数：ps -ef | grep nginx
+windows查看进程数：tasklist /fi "imagename eq nginx.exe"
 ./nginx                     启动nginx
 ./nginx -s stop         强制杀掉进程
 ./nginx -s quit          此方式停止步骤是待nginx进程处理任务完毕进行停止
@@ -53,7 +54,7 @@ location：核心中的核心，用来解析url，实现动静分离
 
 配置文件案例
 1、复制原有配置文件复制到项目的根目录里，名字可以自己起.conf的文件然后改里面的代码
-linux版 nginx1.16.1
+linux版 nginx1.16.1，windows版也是复制文件换一个名字
 #user  nobody;
 worker_processes  1;
 
@@ -97,7 +98,8 @@ uwsgi_pass 127.0.0.1:8888;
 }
 
 
-2、./nginx -t -c 绝对路径                           检查配置文件是否可用
+2、./nginx -t -c 绝对路径                           检查配置文件是否可用  
+      windows版：nginx -t -c /nginx-1.16.1/conf/nginx.conf
 3、./nginx -s quit                                       把现有nginx关闭
 4、./nginx -c 绝对路径                              启用刚才编写的配置文件  
 5、ps -ef | grep nginx                           查看nginx进程数
@@ -129,7 +131,6 @@ pidfile=uwsgi.pid
 daemoize=uwsgi.log
 10、启动uwsgi:uwsgi --ini /uwsgi.ini的绝对路径
 11、uwsgi --stop uwsgi.pid 关闭uwsig
-
 
 upstream负载均衡：
 
