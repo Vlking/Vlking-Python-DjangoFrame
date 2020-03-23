@@ -104,3 +104,49 @@ grade_list.html
 {% for i in grade_list %}
     <li><a href="/URLs/students/{{ i.id }}/">{{ i.g_name }}</a></li>
 {% endfor %}
+
+
+--------------------------------------------------------------------------------
+
+
+其它路由详细案例
+
+
+# 不传参访问：http://127.0.0.1:8000/book/helloa/
+    url(r'^helloa/$', views.get_book, name='get_book'),
+
+    # 传一个参访问：http://127.0.0.1:8000/book/hellob/china/
+    url(r'^hellob/(.+)/$', views.add_book, name='add_book'),
+
+    # 传多个参数访问：http://127.0.0.1:8000/book/helloc/p1china/p22012/
+    url(r'^helloc/p1([A-Za-z0-9]+)/p2(.+)/$', views.update_book, name='update_book'),
+
+
+    # 传多个参数访问：http://127.0.0.1:8000/book/hellod/1/5r5/k/
+    # 这样的路由写法\d是代表数字,[A-Za-z0-9]表示字母加数字，[A-Za-z]表示a到z不区分大小写
+    url(r'^hellod/(\d+)/([A-Za-z0-9]+)/([A-Za-z]+)/', views.get_cs, name='get_cs'),
+
+    # 传多个参数指定关键字参数:http://127.0.0.1:8000/book/helloe/1/5r5/k/
+    # (?P<a_id>\d+)/(?P<a_ids>[A-Za-z0-9]+)/(?P<a_number>[A-Za-z]+):传递的参数是什么尖括号里就写什么，直接对应views里传递的参数
+    url(r'^helloe/(?P<a_id>\d+)/(?P<a_ids>[A-Za-z0-9]+)/(?P<a_number>[A-Za-z]+)/', views.get_ss, name='get_ss'),
+
+
+
+def get_book(request):
+    return HttpResponse("Hello World")
+
+
+def add_book(request, param1):
+    return HttpResponse("The param is:" + param1)
+
+
+def update_book(request, param1, param2):
+    return HttpResponse("p1 = " + param1 + "; p2 = " + param2)
+
+
+def get_cs(request, s_id, s_ids, s_number):
+    return HttpResponse("成功接到三个参数:" + s_id + "----" + s_ids + "----" + s_number)
+
+
+def get_ss(request, a_id, a_ids, a_number):
+    return HttpResponse("成功接到关键字参数:" + a_id + "----" + a_ids + "----" + a_number)
