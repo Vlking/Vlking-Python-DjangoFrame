@@ -150,3 +150,18 @@ def get_cs(request, s_id, s_ids, s_number):
 
 def get_ss(request, a_id, a_ids, a_number):
     return HttpResponse("成功接到关键字参数:" + a_id + "----" + a_ids + "----" + a_number)
+
+
+# django 2.0以下可以直接用url来进行正则表达式传参。2.0以上是直接使用path来进行传参，如果path没有满足传参类型，还可以用re_path()直接使用正则表达式来进行传参
+    # 传递参数说明：
+    # str- 匹配除路径分隔符之外的任何非空字符串'/'。如果转换器未包含在表达式中，则这是默认值。
+    # int - 匹配零或任何正整数。返回一个int。
+    # slug - 匹配由ASCII字母或数字组成的任何slug字符串，以及连字符和下划线字符。例如， building-your-1st-django-site。
+    # uuid - 匹配格式化的UUID。要防止多个URL映射到同一页面，必须包含短划线并且字母必须为小写。例如，075194d3-6885-417e-a8a8-6c931e272f00。返回一个 UUID实例。
+    # path- 匹配任何非空字符串，包括路径分隔符 '/'。这使您可以匹配完整的URL路径，而不仅仅是URL路径的一部分str。
+    path('getbook/<int:booksid>/', views.get_book, name='get_book'),
+    # path('getbooks/', views.get_books, name='get_books'),
+    path('addbook/', views.add_book, name='add_book'),
+    path('delbook/<int:booksid>/', views.del_book, name='del_book'),
+    path('delallbook/', views.del_allbook, name='del_allbook'),
+    path('updatebook/<int:booksid>/', views.update_book, name='update_book'), 
