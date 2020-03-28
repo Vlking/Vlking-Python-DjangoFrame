@@ -118,6 +118,12 @@ CACHES = {
         # 指定客户端
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            #最大链接数
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+            #redis安装完之后在配置文件里设置的密码
+            "PASSWORD": "123456",
+            #字符串格式开启
+            "DECODE_RESPONSES": True
         }
     }
 }
