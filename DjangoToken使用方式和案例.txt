@@ -1,6 +1,7 @@
 Token:服务端会话技术，可以理解为自定义的Session
 如果Web页面开发中，使用起来和Session基本一致
 如果使用在移动端或客户端开发中，通常以Json形式传输，需要移动端自己存储Token,需要获取Token关键数据的时候，主动传递Token。
+Token必须确保唯一性
 
 优缺点：
 Cookie:使用更简洁，服务器压力更小，数据不是很安全。
@@ -45,6 +46,7 @@ def student_login(request):
         password = request.POST.get("password")
         student = Students.objects.filter(s_name=username).filter(s_password=password)
         if student.exists():
+            # .first():只有一条数据
             student = student.first()
             ip = request.META.get("REMOTE_ADDR")
             token = generate_token(ip, username)
