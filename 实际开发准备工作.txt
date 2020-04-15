@@ -112,6 +112,7 @@ FONT_PATH = os.path.join(BASE_DIR, 'static/fonts/framd.ttf')
 运行命令：python manage.py runserver （产品上线不要用runserver）
 生成迁移文件：python manage.py makemigrations
 迁移文件生成表：python manage.py migrate
+在windows下开发安装Pillow方法:直接在CMD下pip3 install Pillow
 
 10、配置urls.py
 path('newcache/', include(('NewCache.urls', 'newcache'), namespace='newcache')),
