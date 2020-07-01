@@ -214,6 +214,10 @@ def company_add(request):
 def companys_get(request):
     # 男生大于1个的与女生大于10个的
     c = Company.objects.filter(Q(c_boy_num__gt=1) & Q(c_girl_num__gt=10))
+    # 男生大于1个的或者女生大于10个的
+    c = Company.objects.filter(Q(c_boy_num__gt=1) | Q(c_girl_num__gt=10))
+    # 男生大于1个的取反
+    c = Company.objects.filter(~Q(c_boy_num__gt=1))
     for i in c:
         print(i.c_name)
     return HttpResponse("获取公司成功")
