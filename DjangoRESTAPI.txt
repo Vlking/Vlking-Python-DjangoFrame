@@ -1,0 +1,62 @@
+@csrf_exempt
+# 查询全部数据api接口函数
+def index_info(request):
+    if request.method == "GET":
+        book_list = Book.objects.all()
+        book_list_json = []
+        for book in book_list:
+            book_list_json.append(book.to_dict())
+        data = {
+            'status': 200,
+            'msg': 'ok',
+            'data': book_list_json
+        }
+        return JsonResponse(data=data)
+# 添加数据api接口函数
+    elif request.method == "POST":
+        # 通过post获取参数
+        b_name = request.POST.get("b_name")
+        b_price = request.POST.get("b_price")
+        # 获取参数后进行保存
+        book = Book()
+        book.b_name = b_name
+        book.b_price = b_price
+        book.save()
+        data = {
+            # 201代表创建或更新成功
+            'status': 201,
+            'msg': 'add success',
+            'data': book.to_dict()
+        }
+        # status=201:真实请求状态码
+        return JsonResponse(data=data)
+
+
+@csrf_exempt
+# 查询一条数据api接口函数
+def book_one(request, id):
+    if request.method == "GET":
+        book_obj = Book.objects.get(pk=id)
+        data = {
+            'status': 200,
+            'msg': 'ok',
+            'data': book_obj.to_dict()
+        }
+        return JsonResponse(data=data)
+#删除一条数据api接口函数
+    elif request.method == "DELETE":
+        book_obj = Book.objects.get(pk=id)
+        book_obj.delete()
+        data = {
+            'status': 204,
+            'msg': 'delete success',
+        }
+        return JsonResponse(data=data)
+        
+        
+        
+1、API管理分类方法：
+在view.py文件右键选择Refactor然后再选择Convert to Python Package,在views文件夹下创建python文件，例：BookAPI.py。
+在文件里把原有views.py的代码粘贴复制过来，然后在__init__.py文件里导包from .BookAPI import index_info, book_one
+（注：index_info, book_one是路由上的）
+这时可以创建多个API.py文件，方便管理。
