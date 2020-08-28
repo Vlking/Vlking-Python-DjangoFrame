@@ -60,3 +60,9 @@ def book_one(request, id):
 在文件里把原有views.py的代码粘贴复制过来，然后在__init__.py文件里导包from .BookAPI import index_info, book_one
 （注：index_info, book_one是路由上的）
 这时可以创建多个API.py文件，方便管理。
+2、Model管理分类方法：
+在models.py文件右键选择Refactor然后再选择Convert to Python Package,在views文件夹下创建python文件，例：BookModel.py。
+在文件里把原有models.py的代码粘贴复制过来，然后在__init__.py文件里导包from .BookAPI import Book
+在models里要把字段自定义成Json格式，例：
+def to_dict(self):
+        return {'id': self.id, 'b_name': self.b_name, 'b_price': self.b_price}
