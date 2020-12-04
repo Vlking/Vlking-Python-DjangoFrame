@@ -172,3 +172,7 @@ base_main.html
 <script></script>
 
 )
+1、pip3 install djangorestframework
+2、在INSTALLED_APPS里加入'rest_framework',
+3、在项目主路由里加入path('api-auth/' ,include('rest_framework.urls'))
+4、进行数据迁移：python manage.py migrate
